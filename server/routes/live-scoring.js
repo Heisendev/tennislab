@@ -510,12 +510,11 @@ router.post('/sessions/:sessionId/point', (req, res) => {
             let setWinner = null;
 
             // Check set winner logic
-            if ((gamesA >= 6 && gamesA - gamesB >= 2) || (gamesB >= 6 && gamesB - gamesA >= 2)) {
+            if ((gamesA >= 6 && gamesA - gamesB >= 2) || (gamesB >= 6 && gamesB - gamesA >= 2) || (gamesA === 7) || (gamesB === 7)) {
                 setWinner = gamesA > gamesB ? 'A' : 'B';
             } else if (gamesA === 6 && gamesB === 6 && !isTiebreak) {
                 // Start tiebreak
                 db.prepare('UPDATE live_sets SET is_tiebreak = 1 WHERE id = ?').run(currentGame.set_id);
-                // TODO implement the serve logic for tiebreaks (first serve by next server, then alternate every 2 points)
             }
 
             if (setWinner) {
