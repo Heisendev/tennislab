@@ -42,11 +42,11 @@ export type MatchStatsSetPlayer = {
 export type NewMatch = {
   tournament: string;
   round?: string;
-  surface: string;
+  surface: "Clay" | "Hard" | "Grass";
   date: string;
   playerA: string;
   playerB: string;
-  format: number;
+  format: "BO3" | "BO5" | "FR2";
 };
 
 export type Match = Omit<NewMatch, "playerA" | "playerB"> & {
