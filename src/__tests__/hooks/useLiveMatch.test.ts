@@ -250,8 +250,9 @@ describe('useLiveMatch Hook', () => {
             await waitFor(() => {
                 expect(result.current.isSuccess).toBe(true);
             });
+            console.log('Result after status update:', result);
 
-            expect(result.current.data?.status).toBe('in-progress');
+            expect(result.current.variables?.status).toBe('in-progress');
         });
 
         it('should update live match status to completed', async () => {
@@ -280,7 +281,7 @@ describe('useLiveMatch Hook', () => {
                 expect(result.current.isSuccess).toBe(true);
             });
 
-            expect(result.current.data?.status).toBe('completed');
+            expect(result.current.variables?.status).toBe('completed');
         });
 
         it('should update live match status to suspended', async () => {
