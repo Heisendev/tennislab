@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS matchs (
     surface TEXT NOT NULL,
     date TEXT NOT NULL,
     duration TEXT,
+    format TEXT CHECK(format IN ('BO3', 'BO5', 'FR2')) DEFAULT 'BO3',
     playerA_id INTEGER NOT NULL,
     playerB_id INTEGER NOT NULL,
     playerA_seed INTEGER,
@@ -185,10 +186,11 @@ INSERT INTO players (rank, firstname, lastname, hand, backhand, country) VALUES
         `);
 
         db.exec(`
-INSERT INTO matchs (tournament, round, surface, date, duration, playerA_id, playerB_id, playerA_seed, playerB_seed, tossWinner) VALUES 
-('Wimbledon', 'Final', 'Grass', '2026-06-06T15:57:31.000Z', '2h30m', 1, 3, 1, 3, 'A'), 
-('US Open', 'Semi-Final', 'Hard', '2026-06-06T15:57:31.000Z', '3h15m', 3, 7, 3, 7, 'B'), 
-('Roland Garros', 'Quarter-Final', 'Clay', '2023-06-12T15:57:31.000Z', '2h45m', 1, 2, 1, 2, 'A');
+INSERT INTO matchs (tournament, round, surface, format, date, duration, playerA_id, playerB_id, playerA_seed, playerB_seed, tossWinner) VALUES
+('Wimbledon', 'Final', 'Grass', 'BO5', '2026-06-06T15:57:31.000Z', '2h30m', 1, 3, 1, 3, 'A'),
+('US Open', 'Semi-Final', 'Hard', 'BO5', '2026-06-06T15:57:31.000Z', '3h15m', 3, 7, 3, 7, 'B'),
+('Open de Saran', '1st round', 'Hard', 'BO3', '2023-06-12T15:57:31.000Z', '2h45m', 9, 8, 1, 2, 'A'),
+('Roland Garros', 'Quarter-Final', 'Clay', 'BO5', '2023-06-12T15:57:31.000Z', '2h45m', 1, 2, 1, 2, 'A');
         `);
     }
 
