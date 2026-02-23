@@ -20,8 +20,6 @@ const MatchHeader = ({ match, liveMatch }: { match: Match, liveMatch?: LiveMatch
   const { t } = useTranslation();
   
   const handleStartLiveMatch = () => {
-    // Logic to start live match goes here
-    console.log("Starting live match...", match.id);
     createLiveMatch.mutate(match.id);
   };
 

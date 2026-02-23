@@ -3,37 +3,24 @@ import { liveMatchApi } from "../services/liveMatch.api";
 import { queryClient } from "@providers/query-client";
 import type { LiveMatch } from "src/types";
 
-const MATCHES_QUERY_KEY = ["Match"];
-const LIVE_MATCH_QUERY_KEY = ["LiveMatch"];
 
 export function useCreateLiveMatch() {
     return useMutation({
         mutationFn: (matchId: number) => liveMatchApi.createLiveMatch(matchId),
-        onSuccess: (variables) => {
-            // Invalidate the specific liveMatch query with the correct ID to trigger refetch
-             queryClient.invalidateQueries({
-                queryKey: [...LIVE_MATCH_QUERY_KEY, ...MATCHES_QUERY_KEY, "matches", variables]
-            });
-         },
-        onError: (error, variables) => {
+        onSuccess: (_data, matchId) => {
+            queryClient.invalidateQueries({ queryKey: ["liveMatch", matchId] });
+        },
+        onError: (error) => {
             console.error('Error creating live match:', error);
-             // Invalidate the specific liveMatch query with the correct ID to trigger refetch
-             queryClient.invalidateQueries({
-                queryKey: [...LIVE_MATCH_QUERY_KEY, ...MATCHES_QUERY_KEY, "matches", variables]
-            });
-         },
+        },
     });
 }
 
 export function useUpdateLiveMatchStatus() {
     return useMutation({
         mutationFn: ({liveMatchId, status}: {liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "suspended"}) => liveMatchApi.updateLiveMatchStatus(liveMatchId, status),
-        onSuccess: (data) => {
-            console.log('Live match status updated successfully, refetching match data');
-            // Invalidate the specific liveMatch query with the correct ID to trigger refetch
-            queryClient.invalidateQueries({
-                queryKey: [...LIVE_MATCH_QUERY_KEY, ...MATCHES_QUERY_KEY, "matches", data.matchId]
-            });
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["liveMatch"] });
         },
         onError: (error) => {
             console.error('Error updating live match status:', error);
