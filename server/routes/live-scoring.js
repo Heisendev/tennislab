@@ -94,24 +94,15 @@ router.post('/sessions', (req, res) => {
 
         // Create session
         const result = db.prepare(`
-            INSERT INTO live_match_sessions (match_id, status, current_set, current_server, match_start_time)
-            VALUES (?, ?, ?, ?, ?)
-        `).run(match_id, 'scheduled', 1, 'A', null);
+            INSERT INTO live_match_sessions (match_id, status, current_set, match_start_time)
+            VALUES (?, ?, ?, ?)
+        `).run(match_id, 'scheduled', 1, null);
 
         // Create first set
         db.prepare(`
             INSERT INTO live_sets (session_id, set_number, games_a, games_b, is_tiebreak)
             VALUES (?, ?, ?, ?, ?)
         `).run(result.lastInsertRowid, 1, 0, 0, 0);
-
-        // Create first game
-        const setId = db.prepare('SELECT id FROM live_sets WHERE session_id = ? AND set_number = 1')
-            .get(result.lastInsertRowid).id;
-
-        db.prepare(`
-            INSERT INTO live_games (set_id, game_number, points_a, points_b, server)
-            VALUES (?, ?, ?, ?, ?)
-        `).run(setId, 1, 0, 0, 'A');
 
         res.status(201).json({
             id: result.lastInsertRowid,
@@ -559,24 +550,40 @@ router.patch('/sessions/:sessionId/status', (req, res) => {
     try {
         const db = getDatabase();
         const { sessionId } = req.params;
-        const { status } = req.body;
+        const { status, toss_winner } = req.body;
 
         if (!status || !['scheduled', 'in-progress', 'suspended', 'completed'].includes(status)) {
             return res.status(400).json({ error: 'Invalid status' });
+        }
+        if (status === 'in-progress' && !toss_winner) {
+            return res.status(400).json({ error: 'Toss winner is required for in-progress status' });
         }
 
         const timestamp = status === 'in-progress' ? new Date().toISOString() :
             status === 'completed' ? new Date().toISOString() : null;
 
-        const updateQuery = status === 'in-progress'
-            ? 'UPDATE live_match_sessions SET status = ?, match_start_time = ? WHERE id = ?'
-            : status === 'completed'
-                ? 'UPDATE live_match_sessions SET status = ?, match_end_time = ? WHERE id = ?'
-                : 'UPDATE live_match_sessions SET status = ? WHERE id = ?';
+            // Create first game
+        const setId = db.prepare('SELECT id FROM live_sets WHERE session_id = ? AND set_number = 1')
+            .get(sessionId).id;
 
-        const params = timestamp ? [status, timestamp, sessionId] : [status, sessionId];
+        db.transaction(() => {
+            db.prepare(`
+                INSERT INTO live_games (set_id, game_number, points_a, points_b, server)
+                VALUES (?, ?, ?, ?, ?)
+            `).run(setId, 1, 0, 0, toss_winner);
 
-        db.prepare(updateQuery).run(...params);
+            db.prepare('UPDATE matches SET tossWinner = ? WHERE id = (SELECT match_id FROM live_match_sessions WHERE id = ?)').run(toss_winner, sessionId);
+        
+            const updateQuery = status === 'in-progress'
+                ? 'UPDATE live_match_sessions SET status = ?, match_start_time = ?, current_server = ? WHERE id = ?'
+                : status === 'completed'
+                    ? 'UPDATE live_match_sessions SET status = ?, match_end_time = ? WHERE id = ?'
+                    : 'UPDATE live_match_sessions SET status = ? WHERE id = ?';
+
+            const params = timestamp ? status === 'in-progress' ? [status, timestamp, toss_winner, sessionId] : [status, timestamp, sessionId] : [status, sessionId];
+
+            db.prepare(updateQuery).run(...params);
+        })();
 
         res.json({ message: `Session status updated to ${status}` });
     } catch (error) {

@@ -90,6 +90,7 @@
   "liveMatch": {
     "in-progress": "Match in progress",
     "scheduled": "Match scheduled",
+    "selectTossWinner": "Select Toss Winner",
     "complete": "End Match",  
     "completed": "Match completed",  
     "paused": "Match paused",

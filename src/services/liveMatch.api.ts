@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3003";
 
 export interface LiveMatchApi {
     createLiveMatch: (matchid: number) => Promise<LiveMatch>;
-    updateLiveMatchStatus: (liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "suspended") => Promise<string>;
+    updateLiveMatchStatus: (liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "suspended", tossWinner?: "A" | "B") => Promise<string>;
     getLiveMatchById: (id: string) => Promise<LiveMatch>;
     addPoint: (matchId:number, liveMatchId: number, player?: 'A' | 'B', serveResult?: string, serveType?: string, winnerShot?: string) => Promise<LiveMatch>;
 }
@@ -25,13 +25,13 @@ export const liveMatchApi: LiveMatchApi = {
         const data = await response.json();
         return data;
     },
-    updateLiveMatchStatus: async (liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "suspended") => {
+    updateLiveMatchStatus: async (liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "suspended", tossWinner?: "A" | "B") => {
         const response = await fetch(`${API_URL}/live-scoring/sessions/${liveMatchId}/status`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ status }),
+            body: JSON.stringify({ status, toss_winner: tossWinner}),
         });
         if (!response.ok) {
             throw new Error(`Failed to update live match status: ${response.statusText}`);

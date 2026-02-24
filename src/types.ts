@@ -63,7 +63,7 @@ export type LiveMatch = Omit<Match, "duration"> & {
   matchId: string;
   status: "created" | "scheduled" | "in-progress" | "completed" | "suspended";
   currentSet: number;
-  currentServer: "A" | "B";
+  currentServer?: "A" | "B";
   MatchStartTime?: string;
   MatchEndTime?: string;
   sets: Set[];

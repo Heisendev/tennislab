@@ -92,6 +92,7 @@
   "liveMatch": {
     "in-progress": "Match en cours",
     "scheduled": "Match programmé",
+    "selectTossWinner": "Gagnant du Tirage au Sort",
     "complete": "Finir le Match",
     "completed": "Match terminé",
     "paused": "Match en pause",

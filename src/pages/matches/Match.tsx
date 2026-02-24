@@ -36,14 +36,8 @@ const createDefaultLiveMatch = (match: MatchType): LiveMatch => ({
   tossWinner: match.tossWinner,
   status: "created",
   currentSet: 1,
-  currentServer: match.tossWinner === "A" ? "A" : "B",
+  currentServer: match.tossWinner === "A" ? "A" : undefined,
   sets: [],
-  currentGame: {
-    points_a: 0,
-    points_b: 0,
-    server: match.tossWinner === "A" ? "A" : "B",
-    gameNumber: 1,
-  },
   matchStats: {},
 });
 
