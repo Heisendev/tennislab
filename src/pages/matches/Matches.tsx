@@ -47,7 +47,7 @@ const Matches = () => {
       </header>
       <main className="md:m-8">
         <div className="max-w-3xl mx-auto px-0 py-0">
-          <h2 className="mt-4 text-xl font-semibold">Recent Matches</h2>
+          <h2 className="mt-4 text-xl font-semibold">{t("matches.recentMatches")}</h2>
           {isLoading && <p>Loading...</p>}
           <motion.ul
             className="flex flex-col list-none pl-0"

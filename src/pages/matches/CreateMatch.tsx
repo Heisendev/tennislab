@@ -81,7 +81,7 @@ const CreateMatch = () => {
           <div className="flex mx-auto md:w-fit flex-col">
             <fieldset className="border-0 flex flex-col text-left md:mb-4 max-w-md mr-auto mb-4 p-0">
               <legend className="font-display text-xl mb-4">
-                Tournament Informations
+                {t("matches.matchDetails")}
               </legend>
               <div className="md:grid md:grid-cols-[150px_1fr] md:gap-4 mb-2 flex flex-col">
                 <Input
@@ -156,13 +156,13 @@ const CreateMatch = () => {
               <div className="md:grid md:grid-cols-[150px_1fr] md:gap-4 mb-2 flex flex-col">
                 <Input
                   id="round"
-                  label="Round"
+                  label={t("matches.round")}
                   placeholder="Round 1"
                   {...register("round")}
                 />
               </div>
               <div className="md:grid md:grid-cols-[150px_1fr] md:gap-4 mb-2 flex flex-col">
-                <label htmlFor="date">Date</label>
+                <label htmlFor="date">{t("matches.date")}</label>
                 <DatePicker
                   id="date"
                   selected={selectedDate}
@@ -172,7 +172,7 @@ const CreateMatch = () => {
               </div>
             </fieldset>
             <fieldset className="flex flex-col border-0 mr-auto max-w-md text-left mb-4 p-0">
-              <legend className="font-display text-xl mb-4">Players</legend>
+              <legend className="font-display text-xl mb-4">{t("matches.players")}</legend>
               <div className="flex flex-col md:grid md:grid-cols-[150px_1fr] md:gap-4 mb-2">
                 <label className="flex items-center gap-2" htmlFor="player1">
                   {t("matches.player")} A

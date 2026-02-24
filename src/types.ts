@@ -36,6 +36,7 @@ export type MatchStatsSetPlayer = {
   set_number: number;
   total_points_won: number;
   unforced_errors: number;
+  errors: number;
   winners: number
 }
 

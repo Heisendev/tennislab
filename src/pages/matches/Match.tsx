@@ -55,6 +55,7 @@ const initialStats: MatchStatsSet = {
     set_number: 0,
     total_points_won: 0,
     unforced_errors: 0,
+    errors: 0,
     winners: 0
   },
   B: {
@@ -70,6 +71,7 @@ const initialStats: MatchStatsSet = {
     set_number: 0,
     total_points_won: 0,
     unforced_errors: 0,
+    errors: 0,
     winners: 0
   }
 };
@@ -136,7 +138,6 @@ const Match = () => {
         />
       )}
 
-      {/* If live match is in progress, show controls to update score and stats */}
       {displayLiveMatch && !displayLiveMatch.error && displayLiveMatch.status === "in-progress" && (
         <>
           <h2 className="text-xl font-bold mb-4">{t('liveMatch.controls')}</h2>
