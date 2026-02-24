@@ -17,6 +17,9 @@ dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), '.env') });
 const app = express();
 const PORT = process.env.PORT || 3003;
 
+// Trust the first proxy (required for secure cookies behind Heroku/Railway/Render/etc.)
+app.set('trust proxy', 1);
+
 // CORS configuration for both development and production
 const allowedOrigins = [
   'http://localhost:5173',
