@@ -30,6 +30,11 @@ router.post('/signup', async (req, res) => {
         // Ensure session exists before setting userId
         if (req.session) {
             req.session.userId = result.lastInsertRowid;
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Error saving session during signup:', err);
+                }
+            });
         } else {
             console.error('Session not initialized during signup');
         }
@@ -62,6 +67,11 @@ router.post('/login', async (req, res) => {
         // Ensure session exists before setting userId
         if (req.session) {
             req.session.userId = user.id;
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Error saving session during login:', err);
+                }
+            });
         } else {
             console.error('Session not initialized during login');
         }

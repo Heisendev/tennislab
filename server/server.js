@@ -51,7 +51,7 @@ app.use(session({
   store: new SqliteStore({ client: getDatabase() }),
   secret: process.env.SESSION_SECRET || 'dev-secret-change-me-in-production',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
