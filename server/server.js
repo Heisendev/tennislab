@@ -1,11 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import session from 'express-session';
+import BetterSqlite3Store from 'better-sqlite3-session-store';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { getDatabase } from './db.js';
 import playersRouter from './routes/players.js';
 import matchesRouter from './routes/matches.js';
 import liveScoringRouter from './routes/live-scoring.js';
+import authRouter from './routes/auth.js';
+import { requireAuth } from './middleware/requireAuth.js';
 
 dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), '.env') });
 
@@ -25,7 +30,7 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl requests)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
       callback(null, true);
     } else {
@@ -40,6 +45,20 @@ app.use(cors({
 app.use(express.json({limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
+// Session middleware
+const SqliteStore = BetterSqlite3Store(session);
+app.use(session({
+  store: new SqliteStore({ client: getDatabase() }),
+  secret: process.env.SESSION_SECRET || 'dev-secret-change-me-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  },
+}));
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
@@ -49,10 +68,13 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes
-app.use('/players', playersRouter);
-app.use('/matches', matchesRouter);
-app.use('/live-scoring', liveScoringRouter);
+// Auth routes (public — no requireAuth)
+app.use('/auth', authRouter);
+
+// Protected API routes
+app.use('/players', requireAuth, playersRouter);
+app.use('/matches', requireAuth, matchesRouter);
+app.use('/live-scoring', requireAuth, liveScoringRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

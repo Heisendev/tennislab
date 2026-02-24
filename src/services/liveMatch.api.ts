@@ -17,6 +17,7 @@ export const liveMatchApi: LiveMatchApi = {
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials: "include",
             body: JSON.stringify({ match_id: matchid }),
         });
         if (!response.ok) {
@@ -31,6 +32,7 @@ export const liveMatchApi: LiveMatchApi = {
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials: "include",
             body: JSON.stringify({ status, toss_winner: tossWinner}),
         });
         if (!response.ok) {
@@ -40,7 +42,9 @@ export const liveMatchApi: LiveMatchApi = {
         return data.message;
     },
     getLiveMatchById: async (id: string) => {
-        const response = await fetch(`${API_URL}/live-scoring/sessions/${id}`);
+        const response = await fetch(`${API_URL}/live-scoring/sessions/${id}`, {
+            credentials: "include",
+        });
         if (!response.ok) {
             throw new Error(`Failed to get live match: ${response.statusText}`);
         }
@@ -53,6 +57,7 @@ export const liveMatchApi: LiveMatchApi = {
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials: "include",
             body: JSON.stringify({ match_id: matchId, winner: player, serve_result: serveResult, serve_type: serveType, winner_shot: winnerShot }),
         });
         if (!response.ok) {

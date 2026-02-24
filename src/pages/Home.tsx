@@ -1,12 +1,14 @@
-import { BarChart3, List, PenSquare, Radio, Users } from "lucide-react";
+import { BarChart3, List, LogOut, PenSquare, Radio, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import { LanguageSelector } from "@components/LanguageSelector";
 import SectionCard from "@components/SectionCard";
+import { useAuth } from "@providers/AuthContext";
 
 const Home = () => {
   const { t } = useTranslation();
+  const { logout, user } = useAuth();
 
   const sections = [
     {
@@ -48,8 +50,16 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background court-texture flex flex-col items-center justify-center px-4 py-16">
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex items-center gap-2">
         <LanguageSelector />
+        <button
+          onClick={logout}
+          title={t("auth.logout")}
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-md hover:bg-white/20"
+        >
+          <LogOut size={15} />
+          <span className="hidden sm:inline">{user?.username}</span>
+        </button>
       </div>
 
       <div className="text-center mb-12">

@@ -10,14 +10,12 @@ export interface PlayersApi {
 
 export const playersApi: PlayersApi = {
   getPlayers: async (): Promise<Player[]> => {
-    // Simulate an API call with a delay
-    const response = await fetch(`${API_URL}/players`);
+    const response = await fetch(`${API_URL}/players`, { credentials: "include" });
     const data = await response.json();
     return data;
   },
   getPlayerById: async (id: string): Promise<Player> => {
-    // Simulate fetching a player by ID
-    const response = await fetch(`${API_URL}/players/${id}`);
+    const response = await fetch(`${API_URL}/players/${id}`, { credentials: "include" });
     if (!response.ok) {
             throw new Error(`Failed to fetch player: ${response.statusText}`);
         }
@@ -25,12 +23,12 @@ export const playersApi: PlayersApi = {
     return data;
   },
   createPlayer: async (newPlayer: NewPlayer): Promise<Player> => {
-    // Simulate creating a new player
     const response = await fetch(`${API_URL}/players`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify(newPlayer),
     });
     if (!response.ok) {

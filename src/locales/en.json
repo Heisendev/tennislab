@@ -124,6 +124,22 @@
       "first_serve_fault": "First Serve Fault"
     }
   },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "username": "Username",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "defaultCredentials": "Default credentials: admin / tennis123",
+    "errors": {
+      "usernameMin": "Username must be at least 3 characters",
+      "passwordMin": "Password must be at least 6 characters",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsMismatch": "Passwords do not match",
+      "generic": "An error occurred. Please try again."
+    }
+  },
   "forms": {
     "validation": {
       "required": "This field is required",

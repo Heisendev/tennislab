@@ -126,6 +126,22 @@
       "first_serve_fault": "Faute de Premier Service"
     }
   },
+  "auth": {
+    "login": "Connexion",
+    "signup": "Inscription",
+    "logout": "Déconnexion",
+    "username": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "defaultCredentials": "Identifiants par défaut : admin / tennis123",
+    "errors": {
+      "usernameMin": "Le nom d'utilisateur doit contenir au moins 3 caractères",
+      "passwordMin": "Le mot de passe doit contenir au moins 6 caractères",
+      "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
+      "passwordsMismatch": "Les mots de passe ne correspondent pas",
+      "generic": "Une erreur est survenue. Veuillez réessayer."
+    }
+  },
   "forms": {
     "validation": {
       "required": "Ce champ est obligatoire",

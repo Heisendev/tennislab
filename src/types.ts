@@ -1,3 +1,8 @@
+export type User = {
+  id: number;
+  username: string;
+};
+
 export type NewPlayer = {
   firstname: string;
   lastname: string;

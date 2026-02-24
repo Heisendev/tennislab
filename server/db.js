@@ -156,6 +156,14 @@ CREATE TABLE IF NOT EXISTS live_match_stats (
     UNIQUE(session_id, set_number, player)
 );`);
 
+    db.exec(`
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);`);
+
     // Create indices
     db.exec(`
 CREATE INDEX IF NOT EXISTS idx_matches_playerA_id ON matches(playerA_id);
@@ -168,6 +176,14 @@ CREATE INDEX IF NOT EXISTS idx_live_points_game_id ON live_points(game_id);
 CREATE INDEX IF NOT EXISTS idx_live_events_session_id ON live_match_events(session_id);
 CREATE INDEX IF NOT EXISTS idx_live_stats_session_id ON live_match_stats(session_id);
     `);
+
+    // Seed default admin user if users table is empty
+    const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get().count;
+    if (userCount === 0) {
+        // Pre-computed bcrypt hash for 'tennis123'
+        db.exec(`INSERT INTO users (username, password_hash) VALUES ('admin', '$2b$10$IBvAlrjswivSt00uzFNdS.liebzFefv0Y8E5hD3PBtWzIFrKlsT.O');`);
+        console.log('   Seeded default user: admin / tennis123');
+    }
 
     // Seed default data if players table is empty
     const playerCount = db.prepare('SELECT COUNT(*) as count FROM players').get().count;

@@ -10,8 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3003";
 
 export const matchesApi: MatchesApi = {
   getMatches: async () => {
-    // Simulate an API call with a delay
-    const response = await fetch(`${API_URL}/matches`);
+    const response = await fetch(`${API_URL}/matches`, { credentials: "include" });
     if (!response.ok) {
             throw new Error(`Failed to fetch matches: ${response.statusText}`);
         }
@@ -19,7 +18,7 @@ export const matchesApi: MatchesApi = {
     return data;
   },
   getMatchById: async (id: string) => {
-    const response = await fetch(`${API_URL}/matches/${id}`);
+    const response = await fetch(`${API_URL}/matches/${id}`, { credentials: "include" });
     if (!response.ok) {
             throw new Error(`Failed to fetch match by id: ${response.statusText}`);
         }
@@ -32,6 +31,7 @@ export const matchesApi: MatchesApi = {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify(match),
     });
     if (!response.ok) {
