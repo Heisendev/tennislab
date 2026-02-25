@@ -8,13 +8,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 const inputStyles = cva(
-  "rounded-md border  px-3 py-2",
+  "border",
   {
     variants: {
       variant: {
-        default: "border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500",
-        error: "border-[var(--bg-interactive-danger)] focus:border-[var(--bg-interactive-danger)] focus:ring-[var(--bg-interactive-danger)]",
-        submit: "bg-[var(--bg-interactive-primary)] hover:bg-[var(--bg-interactive-primary-hover)] text-white py-3 px-4 rounded border border-gray-400",
+        default: "px-3 py-2 rounded-md border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500",
+        error: "px-3 py-2 rounded-md border-[var(--bg-interactive-danger)] focus:border-[var(--bg-interactive-danger)] focus:ring-[var(--bg-interactive-danger)]",
+        submit: "bg-[var(--bg-interactive-primary)] hover:bg-[var(--bg-interactive-primary-hover)] text-white py-3 px-4 rounded border-gray-400",
       },
     },
     defaultVariants: {
@@ -23,7 +23,7 @@ const inputStyles = cva(
   }
 );  
 
-const Input = ({ id, label, variant, type = "text", ...rest }: InputProps) => {
+const Input = ({ id, label, variant, className, type = "text", ...rest }: InputProps) => {
   return (
     <>
       {type !== "submit" && (
@@ -34,7 +34,7 @@ const Input = ({ id, label, variant, type = "text", ...rest }: InputProps) => {
       <input
         type={type}
         id={id}
-        className={inputStyles({ variant })}
+        className={`${inputStyles({ variant })} ${className}`}
         {...rest}
       />
     </>
