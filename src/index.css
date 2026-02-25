@@ -8,56 +8,6 @@
 
 @layer base {
   :root {
-    --background: 0 0% 96%;
-    --foreground: 0 0% 9%;
-
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 9%;
-
-    --popover: 0 0% 89%;
-    --popover-foreground: 0 0% 9%;
-
-    --primary: 20 90% 48%;
-    --primary-foreground: 33 100% 96%;
-
-    --secondary: 0 0% 32%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 63%;
-    --muted-foreground: 0 0% 9%;
-
-    --accent: 47 100% 96%;
-    --accent-foreground: 37 92% 50%;
-
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 85% 97%;
-
-    --border: 0 0% 83%;
-    --input: 0 0% 83%;
-    --ring: 20 90% 48%;
-
-    --radius: 0.75rem;
-
-    --court: 160 50% 25%;
-    --court-line: 48 90% 65%;
-    --stat-bar: 90 75% 45%;
-    --stat-bar-secondary: 200 70% 50%;
-    --glow: 90 75% 45%;
-
-    --sidebar-background: 220 18% 10%;
-    --sidebar-foreground: 0 0% 9%;
-    --sidebar-primary: 20 90% 48%;
-    --sidebar-primary-foreground: 33 100% 96%;
-    --sidebar-accent: 0 0% 32%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 83%;
-    --sidebar-ring: 20 90% 48%;
-    --chart-1: 27 95% 60%;
-    --chart-2: 43 96% 56%;
-    --chart-3: 47 95% 53%;
-    --chart-4: 24 94% 53%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 98%;
     --font-sans:
       "Roboto", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
       "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
@@ -67,68 +17,108 @@
     --font-mono:
       "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
       "Liberation Mono", "Courier New", monospace;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm:
-      0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow:
-      0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md:
-      0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg:
-      0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl:
-      0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
-    --tracking-normal: 0em;
-    --spacing: 0.25rem;
+
+    /* Mews Design Tokens — B2B theme */
+
+    /* Background / Static */
+    --color-background-static-flat: #ffffff;
+    --color-background-static-raised: #ffffff;
+    --color-background-static-floating: #ffffff;
+    --color-background-static-sunken: #f3f3f3;
+    --color-background-static-inverse: #21212e;
+
+    /* Background / Interactive */
+    --color-background-interactive-primary-default: #3b37f2;
+    --color-background-interactive-primary-hover: #1613d7;
+    --color-background-interactive-primary-active: #0a08ad;
+    --color-background-interactive-secondary-default: #f4f4ff;
+    --color-background-interactive-secondary-hover: #e7e7ff;
+    --color-background-interactive-secondary-active: #cfcffe;
+    --color-background-interactive-success-default: #3e8537;
+    --color-background-interactive-danger-default: #e31f1e;
+    --color-background-interactive-neutral-bold-default: #777797;
+
+    /* Background / Accent */
+    --color-background-accent-primary: #3b37f2;
+    --color-background-accent-secondary: #fd707a;
+    --color-background-accent-brand: #7876fb;
+    --color-background-accent-info: #1e6fe9;
+    --color-background-accent-danger: #ed3433;
+    --color-background-accent-success: #3e8537;
+    --color-background-accent-warning: #cc7300;
+    --color-background-accent-gradient: #f7f7fa;
+
+    /* Text / Static */
+    --color-text-static-primary: #21212e;
+    --color-text-static-secondary: #52526d;
+    --color-text-static-tertiary: #646482;
+    --color-text-static-inverse: #ffffff;
+    
+    --color-text-static-accent: hsl(20, 74%, 54%);
+
+    /* Text / Interactive */
+    --color-text-interactive-primary-default: #3b37f2;
+
+    /* Text / Alert */
+    --color-text-alert-danger: #cf0f0f;
+    --color-text-alert-warning: #996100;
+    --color-text-alert-success: #2a5c2c;
+
+    /* Border */
+    --color-border-accent: #595959;
+    --color-border-static-primary: #dfdfea;
+    --color-border-interactive-focus: #5653f7;
+
+    /* Dataviz */
+    --bg-dataviz-blue: #297af2;
+    --bg-dataviz-green: #009ba5;
+    --bg-dataviz-red: #fc091a;
+    --bg-dataviz-pink: #ff48b6;
+    --bg-dataviz-orange: #ff5c00;
+    --bg-dataviz-purple: #7023b7;
+
+    --bg-card: rgba(250, 250, 250, 0.6);
   }
   .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 14%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 25%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 27 95% 60%;
-    --primary-foreground: 12 81% 14%;
-    --secondary: 0 0% 45%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 45%;
-    --muted-foreground: 0 0% 98%;
-    --accent: 20 91% 14%;
-    --accent-foreground: 43 96% 56%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 85% 97%;
-    --border: 0 0% 32%;
-    --input: 0 0% 32%;
-    --ring: 27 95% 60%;
-    --chart-1: 30 97% 72%;
-    --chart-2: 45 96% 64%;
-    --chart-3: 48 96% 76%;
-    --chart-4: 27 95% 60%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 14%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 27 95% 60%;
-    --sidebar-primary-foreground: 12 81% 14%;
-    --sidebar-accent: 43 96% 56%;
-    --sidebar-accent-foreground: 20 91% 14%;
-    --sidebar-border: 0 0% 32%;
-    --sidebar-ring: 27 95% 60%;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm:
-      0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow:
-      0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md:
-      0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg:
-      0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl:
-      0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    /* Mews Design Tokens — GX theme overrides */
+
+    /* Background / Static */
+    --color-background-static-flat: #12121a;
+    --color-background-static-raised: #16161f;
+    --color-background-static-floating: #1a1a24;
+
+    /* Background / Interactive */
+    --color-background-interactive-primary-default: #8886ff;
+    --color-background-interactive-danger-default: #f75b58;
+
+    /* Background / Accent */
+    --color-background-accent-primary: #8886ff;
+    --color-background-accent-secondary: #fa5f69;
+    --color-background-accent-brand: #aeacfa;
+    --color-background-accent-info: #3d8bfa;
+    --color-background-accent-danger: #ef3c38;
+    --color-background-accent-success: #62ad58;
+    --color-background-accent-warning: #fab42e;
+    --color-background-accent-gradient: #16161f;
+
+    /* Text / Static */
+    --color-text-static-primary: #e1e1ea;
+    --color-text-static-secondary: #c4c4d5;
+    --color-text-static-accent: hsl(20, 74%, 54%);
+    --color-text-static-inverse: #16161f;
+
+    /* Text / Interactive */
+    --color-text-interactive-primary-default: #8886ff;
+
+    /* Text / Alert */
+    --color-text-alert-danger: #fc817e;
+
+    /* Border */
+    --color-border-accent: #ffffff;
+    --color-border-static-primary: #424258;
+    --color-border-interactive-focus: #6562f4;
+
+    --bg-card: rgba(250, 250, 250, 0.6);
   }
 }
 
@@ -163,7 +153,7 @@
     );
   }
   .text-primary {
-    color: hsl(20 91% 46%);
+    color: var(--color-text-static-accent);
   }
   .text-stat-secondary {
     color: hsl(200 70 50);
@@ -236,12 +226,7 @@
     --bg-interactive-danger-hover: #cf0f0f;
     --bg-interactive-danger-active: #a41206;
 
-    --bg-dataviz-blue: #297af2;
-    --bg-dataviz-green: #009ba5;
-    --bg-dataviz-red: #fc091a;
-    --bg-dataviz-pink: #ff48b6;
-    --bg-dataviz-orange: #ff5c00;
-    --bg-dataviz-purple: #7023b7;
+    
 
     --bg-background-alert-info: #3c89f7;
     --bg-background-alert-success: #61ad55;
@@ -254,16 +239,33 @@
   #root {
     margin: 0 auto;
     text-align: center;
+    color: var(--color-text-static-primary);
   }
 
   .card {
     padding: 2em;
+  }
+  .bg-card {
+    background-color: var(--bg-card);
   }
 
   body {
     font-family: "Inter", sans-serif;
     background-color: var(--bg-background-accent-gradient);
     margin: 0;
+  }
+
+  footer {
+    a {
+      color: var(--color-text-static-secondary);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s;
+
+      &:hover {
+        border-color: var(--color-text-static-secondary);
+      }
+    }
   }
 
   input,
@@ -278,6 +280,8 @@
   .font-display {
     font-family: "Bebas Neue", sans-serif;
     letter-spacing: 0.05em;
+    font-weight: 400;
+    margin: 0;
   }
   .bg-primary {
     background-color: hsla(20, 91%, 46%, 1);
@@ -287,6 +291,10 @@
   }
   .bg-muted {
     background-color: rgb(123, 112, 112);
+  }
+
+  .text-foreground {
+    color: var(--color-text-static-primary);
   }
 
   /* Custom scrollbar styles */
