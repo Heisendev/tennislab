@@ -109,7 +109,7 @@ const Login = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 flex flex-col gap-4">
-          <div>
+          <div className="flex flex-col">
             <Input
               id="username"
               label={t("auth.username")}
@@ -121,7 +121,7 @@ const Login = () => {
             {errors.username?.message && renderError(t(errors.username.message))}
           </div>
 
-          <div>
+          <div className="flex flex-col">
             <Input
               id="password"
               label={t("auth.password")}
@@ -135,7 +135,7 @@ const Login = () => {
           </div>
 
           {isSignup && (
-            <div>
+            <div className="flex flex-col">
               <Input
                 id="confirmPassword"
                 label={t("auth.confirmPassword")}
