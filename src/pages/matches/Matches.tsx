@@ -23,7 +23,6 @@ const Matches = () => {
   const { data: matches, isLoading } = useGetMatches();
   const { t } = useTranslation();
 
-  console.log(matches);
   return (
     <>
       <header className="backdrop-blur-sm sticky top-0 z-10 border-b border-gray-300 bg-white">

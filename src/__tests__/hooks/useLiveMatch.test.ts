@@ -92,7 +92,6 @@ describe('useLiveMatch Hook', () => {
             await waitFor(() => {
                 expect(result.current.isLoading).toBe(false);
             });
-            console.log('Result after fetch error:', result);
 
             // Note: Error handling depends on implementation
             expect(result.current.data).toBeUndefined();
@@ -252,7 +251,6 @@ describe('useLiveMatch Hook', () => {
             await waitFor(() => {
                 expect(result.current.isSuccess).toBe(true);
             });
-            console.log('Result after status update:', result);
 
             expect(result.current.variables?.status).toBe('in-progress');
         });

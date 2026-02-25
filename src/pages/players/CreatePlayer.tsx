@@ -57,10 +57,8 @@ const CreatePlayer = () => {
   });
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
     mutate(data, {
       onSuccess: async () => {
-        console.log("SUCESS!!");
         navigate("/players");
       },
     });
