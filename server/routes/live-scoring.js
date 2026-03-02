@@ -1,5 +1,6 @@
 import express from 'express';
 import { getDatabase } from '../db.js';
+import e from 'express';
 
 const router = express.Router();
 
@@ -324,11 +325,30 @@ router.post('/sessions/:sessionId/point', (req, res) => {
             ).get(sessionId, session.current_set, pointWinner);
 
             if (!statsRecord) {
-                const statsInsert = {
+                const serverStatsInsert = {
                     session_id: sessionId,
                     set_number: session.current_set,
-                    player: pointWinner,
-                    total_points_won: 1,
+                    player: server,
+                    total_points_won: 0,
+                    aces: 0,
+                    double_faults: 0,
+                    first_serve_count: 1,
+                    first_serve_won: 0,
+                    second_serve_count: 0,
+                    second_serve_won: 0,
+                    winners: 0,
+                    unforced_errors: 0,
+                    errors: 0,
+                    break_points_won: 0,
+                    break_points_faced: 0,
+                    serves_total: 1
+                };
+
+                const receiverStatsInsert = {
+                    session_id: sessionId,
+                    set_number: session.current_set,
+                    player: receiver,
+                    total_points_won: 0,
                     aces: 0,
                     double_faults: 0,
                     first_serve_count: 0,
@@ -343,58 +363,73 @@ router.post('/sessions/:sessionId/point', (req, res) => {
                     serves_total: 0
                 };
 
-                if (serve_type === 'first') {
-                    statsInsert.first_serve_count = 1;
-                    statsInsert.serves_total = 1;
+                const errorType = winner_shot === 'error' ? 'errors' : 'unforced_errors';
+                if (pointWinner === server) {
                     if (serve_result === 'ace') {
-                        statsInsert.aces = 1;
-                        statsInsert.first_serve_won = 1;
+                        serverStatsInsert.aces = 1;
+                        serverStatsInsert.first_serve_won = 1;
+                        serverStatsInsert.total_points_won = 1;
                     }
                     if (winner_shot === 'winner') {
-                        statsInsert.winners = 1;
+                        serverStatsInsert.winners = 1;
+                        serverStatsInsert.total_points_won = 1;
+                    }
+                    if (winner_shot === 'error' || winner_shot === 'unforced-error') {
+                        receiverStatsInsert[errorType] = 1;
+                        serverStatsInsert.total_points_won = 1;
                     }
                 }
 
-                if (winner_shot === 'error' || winner_shot === 'unforced-error') {
-                    const otherPlayer = pointWinner === 'A' ? 'B' : 'A';
-                    const errorType = winner_shot === 'error' ? 'errors' : 'unforced_errors';
-                    db.prepare(`
-                    INSERT INTO live_match_stats (session_id, set_number, player, ${errorType})
-                    VALUES (?, ?, ?, ?)
-                `).run(statsInsert.session_id, statsInsert.set_number, otherPlayer, 1);
+                if (pointWinner === receiver) {
+                    if (winner_shot === 'error' || winner_shot === 'unforced-error') {
+                        serverStatsInsert[errorType] = 1;
+                        receiverStatsInsert.total_points_won = 1;
+                    }
+                    if (winner_shot === 'winner') {
+                        receiverStatsInsert.winners = 1;
+                        receiverStatsInsert.total_points_won = 1;
+                    }
                 }
 
                 db.prepare(`
                     INSERT INTO live_match_stats (session_id, set_number, player, total_points_won, aces, double_faults, first_serve_count, first_serve_won, second_serve_won, winners, break_points_won, break_points_faced, serves_total)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `).run(statsInsert.session_id, statsInsert.set_number, statsInsert.player, statsInsert.total_points_won, statsInsert.aces, statsInsert.double_faults, statsInsert.first_serve_count, statsInsert.first_serve_won, statsInsert.second_serve_won, statsInsert.winners, statsInsert.break_points_won, statsInsert.break_points_faced, statsInsert.serves_total);
-            } 
+                `).run(serverStatsInsert.session_id, serverStatsInsert.set_number, serverStatsInsert.player, serverStatsInsert.total_points_won, serverStatsInsert.aces, serverStatsInsert.double_faults, serverStatsInsert.first_serve_count, serverStatsInsert.first_serve_won, serverStatsInsert.second_serve_won, serverStatsInsert.winners, serverStatsInsert.break_points_won, serverStatsInsert.break_points_faced, serverStatsInsert.serves_total);
+                db.prepare(`
+                    INSERT INTO live_match_stats (session_id, set_number, player, total_points_won, aces, double_faults, first_serve_count, first_serve_won, second_serve_won, winners, break_points_won, break_points_faced, serves_total)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `).run(receiverStatsInsert.session_id, receiverStatsInsert.set_number, receiverStatsInsert.player, receiverStatsInsert.total_points_won, receiverStatsInsert.aces, receiverStatsInsert.double_faults, receiverStatsInsert.first_serve_count, receiverStatsInsert.first_serve_won, receiverStatsInsert.second_serve_won, receiverStatsInsert.winners, receiverStatsInsert.break_points_won, receiverStatsInsert.break_points_faced, receiverStatsInsert.serves_total);
+            }
             else {
                 let updateQuery = 'UPDATE live_match_stats SET total_points_won = total_points_won + 1';
                 const params = [sessionId, session.current_set, pointWinner];
+                const otherPlayer = pointWinner === server ? receiver : server;
 
-                if (serve_result === 'ace' && serve_type === 'first') {
-                    updateQuery += ', aces = aces + 1, first_serve_won = first_serve_won + 1, first_serve_count = first_serve_count + 1, serves_total = serves_total + 1';
-                } else if (serve_result === 'ace' && serve_type === 'second') {
-                    updateQuery += ', aces = aces + 1, second_serve_won = second_serve_won + 1, second_serve_count = second_serve_count + 1, serves_total = serves_total + 1';
-                }
-
-                if (winner_shot === 'winner') {
-                    updateQuery += ', winners = winners + 1';
+                if (pointWinner === server) {
                     if (serve_type === 'first') {
                         updateQuery += ', first_serve_won = first_serve_won + 1, first_serve_count = first_serve_count + 1, serves_total = serves_total + 1';
                     } else if (serve_type === 'second') {
                         updateQuery += ', second_serve_won = second_serve_won + 1, second_serve_count = second_serve_count + 1, serves_total = serves_total + 1';
                     }
+                    if (serve_result === 'ace') {
+                        updateQuery += ', aces = aces + 1';
+                    }
+                } else {
+                    if (serve_type === 'first') {
+                        db.prepare(`
+                    UPDATE live_match_stats SET first_serve_count = first_serve_count + 1, serves_total = serves_total + 1
+                    WHERE session_id = ? AND set_number = ? AND player = ?
+                `).run(sessionId, session.current_set, server);
+                    } else if (serve_type === 'second') {
+                        db.prepare(`
+                    UPDATE live_match_stats SET second_serve_count = second_serve_count + 1, serves_total = serves_total + 1
+                    WHERE session_id = ? AND set_number = ? AND player = ?
+                `).run(sessionId, session.current_set, server);
+                    }
                 }
 
-                if (winner_shot === 'error' || winner_shot === 'unforced-error') {
-                    const otherPlayer = pointWinner === 'A' ? 'B' : 'A';
-                    const errorType = winner_shot === 'error' ? 'errors' : 'unforced_errors';
-                    db.prepare(`
-                    UPDATE live_match_stats SET ${errorType} = ${errorType} + 1
-                    WHERE session_id = ? AND set_number = ? AND player = ?
-                `).run(sessionId, session.current_set, otherPlayer);
+                if (winner_shot === 'winner') {
+                    updateQuery += ', winners = winners + 1';
                 }
 
                 if (isBreakPointSituation) {
@@ -407,6 +442,15 @@ router.post('/sessions/:sessionId/point', (req, res) => {
 
                 updateQuery += ', updated_at = CURRENT_TIMESTAMP WHERE session_id = ? AND set_number = ? AND player = ?';
                 db.prepare(updateQuery).run(...params);
+
+                if (winner_shot === 'error' || winner_shot === 'unforced-error') {
+
+                    const errorType = winner_shot === 'error' ? 'errors' : 'unforced_errors';
+                    db.prepare(`
+                    UPDATE live_match_stats SET ${errorType} = ${errorType} + 1
+                    WHERE session_id = ? AND set_number = ? AND player = ?
+                `).run(sessionId, session.current_set, otherPlayer);
+                }
             }
 
             // Update game points and check for game/set/match winner
@@ -562,12 +606,12 @@ router.patch('/sessions/:sessionId/status', (req, res) => {
         const timestamp = status === 'in-progress' ? new Date().toISOString() :
             status === 'completed' ? new Date().toISOString() : null;
 
-            // Create first game
-            const setId = db.prepare('SELECT id FROM live_sets WHERE session_id = ? AND set_number = 1')
+        // Create first game
+        const setId = db.prepare('SELECT id FROM live_sets WHERE session_id = ? AND set_number = 1')
             .get(sessionId).id;
-            
+
         db.transaction(() => {
-            if (status === 'in-progress') { 
+            if (status === 'in-progress') {
                 db.prepare(`
                     INSERT INTO live_games (set_id, game_number, points_a, points_b, server)
                     VALUES (?, ?, ?, ?, ?)
