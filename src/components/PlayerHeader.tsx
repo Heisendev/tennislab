@@ -12,7 +12,7 @@ interface PlayerHeaderProps {
 
 const PlayerHeader = ({ player, winner }: PlayerHeaderProps) => {
   return (
-    <div className="text-center mb-8">
+    <div className="text-center mb-4">
       <div className="flex align-middle place-items-center gap-3">
         <div
           className={`w-14 h-14 flex justify-center items-center rounded-full border ${winner ? "border-green-500" : "border-gray-200"}`}

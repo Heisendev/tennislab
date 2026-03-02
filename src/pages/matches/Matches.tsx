@@ -28,7 +28,7 @@ const Matches = () => {
       <header className="backdrop-blur-sm sticky top-0 z-10 border-b border-gray-300 bg-white">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
           <Link
-            to="/"
+            to="/dashboard"
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -61,9 +61,9 @@ const Matches = () => {
                     <Link
                       key={match.id}
                       to={`/matches/${match.id}`}
-                      className="px-6 hover:bg-primary-dark transition-colors w-full"
+                      className="px-6 hover:bg-primary-dark transition-colors w-full text-(--color-text-static-primary)"
                     >
-                    <div className="group relative bg-white border border-gray-400  rounded-lg p-4 md:p-5 hover:border-gray-600 transition-all duration-300 hover:glow-primary">
+                    <div className="group relative bg-white border border-gray-400 p-4 md:p-5 hover:border-gray-600 transition-all duration-300 hover:glow-primary">
                       {match.playerA.firstname} {match.playerA.lastname} vs{" "}
                       {match.playerB.firstname} {match.playerB.lastname} -{" "}
                       {match.tournament} {match.round}{" "}

@@ -37,7 +37,7 @@ export const MatchSummary = ({
   const numberOfSets = format === "BO5" ? 5 : 3;
   const setsPlayed = numberOfSets === 5 ? isLive ? [1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5] : numberOfSets === 3 ? isLive ? [1, 2, 3, 4] : [1, 2, 3] : [];
   return (
-    <div className={"mx-2 mb-8 max-w-4xl md:mx-auto grid bg-white items-center border border-gray-300 rounded-lg" + (numberOfSets === 5 ? isLive ? " grid-cols-[1fr_repeat(6,35px)] md:grid-cols-[1fr_repeat(6,48px)]" : " grid-cols-[1fr_repeat(5,35px)] md:grid-cols-[1fr_repeat(5,48px)]" : numberOfSets === 3 ? isLive ? " grid-cols-[1fr_repeat(4,35px)] md:grid-cols-[1fr_repeat(4,48px)]" : " grid-cols-[1fr_repeat(3,35px)] md:grid-cols-[1fr_repeat(3,48px)]" : "")}>
+    <div className={"mx-2 mb-8 max-w-4xl md:mx-auto grid bg-white items-center border border-gray-300" + (numberOfSets === 5 ? isLive ? " grid-cols-[1fr_repeat(6,35px)] md:grid-cols-[1fr_repeat(6,48px)]" : " grid-cols-[1fr_repeat(5,35px)] md:grid-cols-[1fr_repeat(5,48px)]" : numberOfSets === 3 ? isLive ? " grid-cols-[1fr_repeat(4,35px)] md:grid-cols-[1fr_repeat(4,48px)]" : " grid-cols-[1fr_repeat(3,35px)] md:grid-cols-[1fr_repeat(3,48px)]" : "")}>
       <div className="px-4 py-2 h-6" />
       {setsPlayed.map((set, index) => {
         if (isLive && index === setsPlayed.length - 1) {

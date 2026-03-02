@@ -86,7 +86,7 @@ const Players = () => {
           >
             {filtered.map((player) => (
               <motion.li key={player.id} variants={item}>
-                <div className="group relative bg-white border border-gray-400  rounded-lg p-4 md:p-5 hover:border-gray-600 transition-all duration-300 hover:glow-primary">
+                <div className="group relative backdrop-blur-sm bg-white border border-gray-400 p-2 md:p-5 hover:border-(--color-background-accent-secondary) transition-all duration-300 hover:glow-color-background-accent-secondary">
                   <div className="flex items-center gap-4 md:gap-6">
                     {/* Rank */}
                     <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0">

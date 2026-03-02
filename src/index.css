@@ -31,6 +31,7 @@
     --color-background-interactive-primary-default: #3b37f2;
     --color-background-interactive-primary-hover: #1613d7;
     --color-background-interactive-primary-active: #0a08ad;
+    --color-background-interactive-tertiary-default: #36404f;
     --color-background-interactive-secondary-default: #f4f4ff;
     --color-background-interactive-secondary-hover: #e7e7ff;
     --color-background-interactive-secondary-active: #cfcffe;
@@ -146,11 +147,7 @@
     );
   }
   .court-texture {
-    background: radial-gradient(
-      ellipse at 50% 120%,
-      hsl(160 50% 25% / 0.15) 0%,
-      transparent 70%
-    );
+    background: radial-gradient(ellipse at 50% 120%,hsl(160 50% 25% / .15) 0%,transparent 70%);
   }
   .text-primary {
     color: var(--color-text-static-accent);
@@ -207,6 +204,7 @@
 
 @layer base {
   * {
+    --blur-sm: blur(4px, 8px);
     --bg-color-disabled: #efeff5;
     --bg-color-brand: #21212e;
 
@@ -226,14 +224,17 @@
     --bg-interactive-danger-hover: #cf0f0f;
     --bg-interactive-danger-active: #a41206;
 
-    
-
     --bg-background-alert-info: #3c89f7;
     --bg-background-alert-success: #61ad55;
     --bg-background-alert-warning: #f3a01f;
     --bg-background-alert-danger: #f34e4d;
 
     --bg-background-accent-gradient: #f7f7fa;
+
+  }
+
+  .glow-color-background-accent-secondary {
+    box-shadow: 0 0 20px var(--bg-interactive-primary-active),0 0 60px var(--bg-interactive-primary-active)
   }
 
   #root {
@@ -253,6 +254,15 @@
     font-family: "Inter", sans-serif;
     background-color: var(--bg-background-accent-gradient);
     margin: 0;
+
+    a {
+      color: var(--color-text-static-secondary);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 
   footer {
@@ -263,6 +273,7 @@
       transition: border-color 0.3s;
 
       &:hover {
+        text-decoration: none;
         border-color: var(--color-text-static-secondary);
       }
     }
@@ -337,17 +348,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-    &:first-of-type {
-      border-radius: 6px 0 0 6px;
-      border-right: none;
-    }
     &:last-of-type {
-      border-radius: 0 6px 6px 0;
       border-left: none;
     }
   }
   input[type="radio"]:hover + label {
+    border: solid 1px;
     border-color: var(--bg-interactive-primary-hover);
   }
   input[type="radio"]:checked + label {

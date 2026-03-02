@@ -12,9 +12,9 @@ export interface SectionCardProps {
 const SectionCard = ({ section }: SectionCardProps) => {
   const Icon = section.icon;
   return (
-    <div className="relative bg-card/60 border border-gray-400 bg-white rounded-lg p-6 h-full group-hover:border-primary/50 group-hover:glow-primary">
+    <div className="relative bg-card/60 border border-gray-400 bg-white p-6 h-full group-hover:border-primary/50 group-hover:glow-primary">
       <div className="flex items-start gap-4">
-        <div className="p-2 rounded-md bg-(--bg-background-alert-danger)/10 text-primary shrink-0">
+        <div className="p-2 bg-(--color-background-interactive-tertiary-default)/10 text-primary shrink-0">
           <Icon className="w-5 h-5" />
         </div>
         <div className="text-left">

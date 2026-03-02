@@ -141,12 +141,12 @@ const Match = () => {
       {displayLiveMatch && !displayLiveMatch.error && displayLiveMatch.status === "in-progress" && (
         <>
           <h2 className="text-xl font-bold mb-4">{t('liveMatch.controls')}</h2>
-          <div className="mx-2 max-w-4xl md:mx-auto bg-white rounded-lg border border-gray-300 mb-8 py-4">
+          <div className="mx-2 max-w-4xl md:mx-auto bg-white border border-gray-300 mb-8 py-4">
             {(displayLiveMatch.currentGame?.server && displayLiveMatch.currentGame?.server === "A") ? (
               <h3>{t('liveMatch.currentServer')}: {displayLiveMatch.playerA.firstname} {displayLiveMatch.playerA.lastname}</h3>
             ) : (<h3>{t('liveMatch.currentServer')}: {displayLiveMatch.playerB.firstname} {displayLiveMatch.playerB.lastname}</h3>)}
             <div className="mb-2 px-8">
-              <h4 className="text-left mb-1">{t('liveMatch.serve')}</h4>
+              <h4 className="text-left mb-1 mt-2">{t('liveMatch.serve')}</h4>
               <div className="grid grid-cols-2 gap-4">
                 <Button variant="secondary" disabled={serveType === "second"} onClick={() => handleAddPoint(match.id, displayLiveMatch.id, undefined, 'error', 'first')}>
                   {t("liveMatch.stats.first_serve_fault")}
@@ -162,7 +162,7 @@ const Match = () => {
                   </Button>
                 </div>
               </div>
-              <h4 className="text-left mb-1">{t('liveMatch.stats.winner')}</h4>
+              <h4 className="text-left mb-1 mt-2">{t('liveMatch.stats.winner')}</h4>
               <div className="grid grid-cols-2 gap-4">
                 <Button variant="controlPlayerA" onClick={() => handleAddPoint(match.id, displayLiveMatch.id, 'A', undefined, serveType, 'winner')}>
                   <Target className="w-3.5 h-3.5 mr-2" />
@@ -173,7 +173,7 @@ const Match = () => {
                   {displayLiveMatch.playerB.firstname} {displayLiveMatch.playerB.lastname}
                 </Button>
               </div>
-              <h4 className="text-left mb-1">{t('liveMatch.stats.unforced_error')}</h4>
+              <h4 className="text-left mb-1 mt-2">{t('liveMatch.stats.unforced_error')}</h4>
               <div className="grid grid-cols-2 gap-4">
                 <Button variant="controlPlayerA" onClick={() => handleAddPoint(match.id, displayLiveMatch.id, 'B', undefined, serveType, 'unforced-error')}>
                   {displayLiveMatch.playerA.firstname} {displayLiveMatch.playerA.lastname}
@@ -182,7 +182,7 @@ const Match = () => {
                   {displayLiveMatch.playerB.firstname} {displayLiveMatch.playerB.lastname}
                 </Button>
               </div>
-              <h4 className="text-left mb-1">{t('liveMatch.stats.error')}</h4>
+              <h4 className="text-left mb-1 mt-2">{t('liveMatch.stats.error')}</h4>
               <div className="grid grid-cols-2 gap-4">
                 <Button variant="controlPlayerA" onClick={() => handleAddPoint(match.id, displayLiveMatch.id, 'B', undefined, serveType, 'error')}>
                   {displayLiveMatch.playerA.firstname} {displayLiveMatch.playerA.lastname}
@@ -202,7 +202,7 @@ const Match = () => {
       {displayLiveMatch && displayLiveMatch.matchStats &&
         <>
           <h2 className="text-xl font-bold mb-4">{t('liveMatch.matchStatistics')}</h2>
-          <div className="mx-2 max-w-4xl md:mx-auto bg-white rounded-lg border border-gray-300 mb-8 pb-4 pt-8">
+          <div className="mx-2 max-w-4xl md:mx-auto bg-white border border-gray-300 mb-8 pb-4 pt-8">
             <Tabs defaultIndex={0}>
               <TabList>
                 {Object.entries(displayLiveMatch.matchStats).map(([key], i) => {

@@ -131,7 +131,7 @@ const Hero = () => (
   <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
     {/* ambient glow */}
     <div className="absolute inset-0 court-texture" />
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-(--color-text-static-accent)/10 blur-[120px] pointer-events-none" />
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-(--color-background-interactive-tertiary-default)/10 blur-[120px] pointer-events-none" />
 
     <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
       <motion.div
@@ -173,13 +173,13 @@ const Hero = () => (
       >
         <Link
           to="/dashboard"
-          className="px-8 h-11 bg-(--color-text-static-accent) text-(--color-text-static-inverse) rounded-md hover:bg-(--color-text-static-accent)/70 transition-colors inline-flex items-center gap-2"
+          className="px-8 h-11 bg-(--color-background-interactive-tertiary-default) text-(--color-text-static-inverse) hover:bg-(--color-text-static-accent)/70 transition-colors inline-flex items-center gap-2"
         >
           Open Dashboard <ArrowRight className="w-4 h-4" />
         </Link>
         <Link
           to="/live"
-          className="px-8 h-11 bg-(--color-text-static-inverse) text-(--color-text-static-primary) rounded-md hover:text-(--color-text-static-primary)/70 transition-colors inline-flex items-center gap-2 border border-(--color-text-static-tertiary)"
+          className="px-8 h-11 bg-(--color-text-static-inverse) text-(--color-text-static-primary) hover:text-(--color-text-static-primary)/70 transition-colors inline-flex items-center gap-2 border border-(--color-text-static-tertiary)"
           aria-disabled
         >
           <Radio className="w-4 h-4" /> Try Live Tracker
