@@ -24,7 +24,8 @@ router.get('/', (req, res) => {
                     'firstname', pa.firstname,
                     'lastname', pa.lastname,
                     'country', pa.country,
-                    'seed', m.playerA_seed
+                    'rank', pa.rank,
+                    'seed', m.playerASeed
                 ) AS playerA,
 
                 json_object(
@@ -32,7 +33,8 @@ router.get('/', (req, res) => {
                     'firstname', pb.firstname,
                     'lastname', pb.lastname,
                     'country', pb.country,
-                    'seed', m.playerB_seed
+                    'rank', pb.rank,
+                    'seed', m.playerBSeed
                 ) AS playerB
 
             FROM matches m
@@ -55,7 +57,6 @@ router.get('/', (req, res) => {
                 }
                 matches.push(match);
             }
-
         
             res.json(matches); 
     } catch (error) {
@@ -106,15 +107,17 @@ router.get('/:id', (req, res) => {
                     'firstname', pa.firstname,
                     'lastname', pa.lastname,
                     'country', pa.country,
-                    'seed', m.playerA_seed
+                    'rank', pa.rank,
+                    'seed', m.playerASeed
                 ) AS playerA,
 
                 json_object(
                     'id', pb.id,
+                    'rank', pb.rank,
                     'firstname', pb.firstname,
                     'lastname', pb.lastname,
                     'country', pb.country,
-                    'seed', m.playerB_seed
+                    'seed', m.playerBSeed
                 ) AS playerB
 
             FROM matches m

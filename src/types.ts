@@ -14,8 +14,8 @@ export type NewPlayer = {
 
 export type Player = NewPlayer & {
   id: number;
-  seed?: number;
 };
+
 export type MatchStatsSet = {
   A: MatchStatsSetPlayer;
   B: MatchStatsSetPlayer;
@@ -59,6 +59,8 @@ export type Match = Omit<NewMatch, "playerA" | "playerB"> & {
   id: number;
   playerA: Player;
   playerB: Player;
+  playerASeed?: number;
+  playerBSeed?: number;
   winner?: "A" | "B";
   tossWinner?: "A" | "B";
   matchStats?: MatchStats;
