@@ -1,6 +1,6 @@
-import type { NewPlayer, Player } from "../types";
+import { API_URL, ensureOk } from "./api.common";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3003";
+import type { NewPlayer, Player } from "../types";
 
 export interface PlayersApi {
   getPlayers: () => Promise<Player[]>;
@@ -11,14 +11,13 @@ export interface PlayersApi {
 export const playersApi: PlayersApi = {
   getPlayers: async (): Promise<Player[]> => {
     const response = await fetch(`${API_URL}/players`, { credentials: "include" });
+    await ensureOk(response, `Failed to fetch players: ${response.statusText}`);
     const data = await response.json();
     return data;
   },
   getPlayerById: async (id: string): Promise<Player> => {
     const response = await fetch(`${API_URL}/players/${id}`, { credentials: "include" });
-    if (!response.ok) {
-            throw new Error(`Failed to fetch player: ${response.statusText}`);
-        }
+    await ensureOk(response, `Failed to fetch player: ${response.statusText}`);
     const data = await response.json();
     return data;
   },
@@ -31,9 +30,7 @@ export const playersApi: PlayersApi = {
       credentials: "include",
       body: JSON.stringify(newPlayer),
     });
-    if (!response.ok) {
-            throw new Error(`Failed to create player: ${response.statusText}`);
-        }
+    await ensureOk(response, `Failed to create player: ${response.statusText}`);
     const data = await response.json();
     return data;
   },

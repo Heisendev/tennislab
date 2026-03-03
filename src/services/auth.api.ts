@@ -1,6 +1,6 @@
-import type { User } from "../types";
+import { API_URL, buildApiError } from "./api.common";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3003";
+import type { User } from "../types";
 
 export const authApi = {
   login: async (username: string, password: string): Promise<User> => {
@@ -10,8 +10,10 @@ export const authApi = {
       credentials: "include",
       body: JSON.stringify({ username, password }),
     });
+    if (!response.ok) {
+      throw await buildApiError(response, "Login failed");
+    }
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Login failed");
     return data;
   },
 
@@ -22,16 +24,22 @@ export const authApi = {
       credentials: "include",
       body: JSON.stringify({ username, password }),
     });
+    if (!response.ok) {
+      throw await buildApiError(response, "Signup failed");
+    }
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Signup failed");
     return data;
   },
 
   logout: async (): Promise<void> => {
-    await fetch(`${API_URL}/auth/logout`, {
+    const response = await fetch(`${API_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
+
+    if (!response.ok) {
+      throw await buildApiError(response, "Logout failed");
+    }
   },
 
   getMe: async (): Promise<User | null> => {

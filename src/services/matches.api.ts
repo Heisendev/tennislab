@@ -1,3 +1,5 @@
+import { API_URL, ensureOk } from "./api.common";
+
 import type { Match, NewMatch } from "../types";
 
 export interface MatchesApi {
@@ -6,22 +8,16 @@ export interface MatchesApi {
   createMatch: (match: NewMatch) => Promise<Match>;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3003";
-
 export const matchesApi: MatchesApi = {
   getMatches: async () => {
     const response = await fetch(`${API_URL}/matches`, { credentials: "include" });
-    if (!response.ok) {
-            throw new Error(`Failed to fetch matches: ${response.statusText}`);
-        }
+    await ensureOk(response, `Failed to fetch matches: ${response.statusText}`);
     const data = await response.json();
     return data;
   },
   getMatchById: async (id: string) => {
     const response = await fetch(`${API_URL}/matches/${id}`, { credentials: "include" });
-    if (!response.ok) {
-            throw new Error(`Failed to fetch match by id: ${response.statusText}`);
-        }
+    await ensureOk(response, `Failed to fetch match by id: ${response.statusText}`);
     const data = await response.json();
     return data;
   },
@@ -34,9 +30,7 @@ export const matchesApi: MatchesApi = {
       credentials: "include",
       body: JSON.stringify(match),
     });
-    if (!response.ok) {
-            throw new Error(`Failed to create match: ${response.statusText}`);
-        }
+    await ensureOk(response, `Failed to create match: ${response.statusText}`);
     const data = await response.json();
     return data;
   },

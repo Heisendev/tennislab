@@ -1,13 +1,12 @@
 import type { LiveMatch } from "src/types";
 
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3003";
+import { API_URL, ensureOk } from "./api.common";
 
 export interface LiveMatchApi {
     createLiveMatch: (matchid: number) => Promise<LiveMatch>;
     updateLiveMatchStatus: (liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "suspended", tossWinner?: "A" | "B") => Promise<string>;
     getLiveMatchById: (id: string) => Promise<LiveMatch>;
-    addPoint: (matchId:number, liveMatchId: number, player?: 'A' | 'B', serveResult?: string, serveType?: string, winnerShot?: string) => Promise<LiveMatch>;
+    addPoint: (matchId: number, liveMatchId: number, player?: 'A' | 'B', serveResult?: string, serveType?: string, winnerShot?: string) => Promise<LiveMatch>;
 }
 
 export const liveMatchApi: LiveMatchApi = {
@@ -20,9 +19,7 @@ export const liveMatchApi: LiveMatchApi = {
             credentials: "include",
             body: JSON.stringify({ match_id: matchid }),
         });
-        if (!response.ok) {
-            throw new Error(`Failed to create live match: ${response.statusText}`);
-        }
+        await ensureOk(response, `Failed to create live match: ${response.statusText}`);
         const data = await response.json();
         return data;
     },
@@ -33,11 +30,9 @@ export const liveMatchApi: LiveMatchApi = {
                 "Content-Type": "application/json",
             },
             credentials: "include",
-            body: JSON.stringify({ status, toss_winner: tossWinner}),
+            body: JSON.stringify({ status, toss_winner: tossWinner }),
         });
-        if (!response.ok) {
-            throw new Error(`Failed to update live match status: ${response.statusText}`);
-        }
+        await ensureOk(response, `Failed to update live match status: ${response.statusText}`);
         const data = await response.json();
         return data.message;
     },
@@ -45,13 +40,11 @@ export const liveMatchApi: LiveMatchApi = {
         const response = await fetch(`${API_URL}/live-scoring/sessions/${id}`, {
             credentials: "include",
         });
-        if (!response.ok) {
-            throw new Error(`Failed to get live match: ${response.statusText}`);
-        }
+        await ensureOk(response, `Failed to get live match: ${response.statusText}`);
         const data = await response.json();
         return data;
     },
-    addPoint: async (matchId:number, liveMatchId: number, player?: 'A' | 'B', serveResult?: string, serveType?: string, winnerShot?: string) => {
+    addPoint: async (matchId: number, liveMatchId: number, player?: 'A' | 'B', serveResult?: string, serveType?: string, winnerShot?: string) => {
         const response = await fetch(`${API_URL}/live-scoring/sessions/${liveMatchId}/point`, {
             method: "POST",
             headers: {
@@ -60,9 +53,7 @@ export const liveMatchApi: LiveMatchApi = {
             credentials: "include",
             body: JSON.stringify({ match_id: matchId, winner: player, serve_result: serveResult, serve_type: serveType, winner_shot: winnerShot }),
         });
-        if (!response.ok) {
-            throw new Error(`Failed to add point: ${response.statusText}`);
-        }
+        await ensureOk(response, `Failed to add point: ${response.statusText}`);
         const data = await response.json();
         return data;
     },
