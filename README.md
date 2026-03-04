@@ -1,522 +1,325 @@
+# TennisTracker
+
+Full-stack tennis match management and live scoring platform with:
+- Web app for authenticated match/player management and live point tracking
+- Realtime score streaming over WebSockets
+- SQLite-backed API with session-based auth
+- Mobile read-only live viewer (Expo / React Native)
+
 ![React](https://img.shields.io/badge/React-19-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
 ![Node.js](https://img.shields.io/badge/Node-18%2B-green)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-# 🎾 TennisTracker
+## Table of Contents
 
-A comprehensive web application for tracking tennis matches, players, and live match statistics. Built with React, TypeScript, Vite, Express.js, and SQLite.
+- [Overview](#overview)
+- [Core Features](#core-features)
+- [System Architecture](#system-architecture)
+- [Tech Stack](#tech-stack)
+- [Repository Structure](#repository-structure)
+- [Data Model](#data-model)
+- [API Surface](#api-surface)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [Testing & Quality](#testing--quality)
+- [Deployment](#deployment)
+- [Localization](#localization)
+- [Mobile Viewer](#mobile-viewer)
+- [Roadmap Notes](#roadmap-notes)
 
-**[Live Demo](https://your-vercel-domain.vercel.app)** • **[API](https://your-backend-url.com)** • **[Deployment Guide](./DEPLOYMENT.md)**
+## Overview
 
-## ✨ Features
+TennisTracker is designed for coaches, analysts, and competitive players who want structured tennis data from match setup to point-by-point live scoring.
 
-### 👥 Player Management
-- Create and manage tennis player profiles
-- Track player information (firstname, lastname, country, hand, backhand type)
-- Browse all players in the system
-- Country selection with flag support (239+ countries)
+The platform currently includes:
+- Authenticated web dashboard for operational workflows
+- Structured tennis entities: players, matches, and live sessions
+- Realtime updates for active matches via `ws://.../live-updates?matchId=...`
+- Per-point event logging and per-set stat aggregation
+- Bilingual UI support (English/French)
 
-### 🏆 Match Management
-- Create detailed match records with:
-  - Tournament name and round
-  - Playing surface (Clay, Hard, Grass)
-  - Match date
-  - Player seeding information
-  - Toss winner
-- View match details with player information
-- Track match history
-- Match summary display with player headers
+## Core Features
 
-### 🔴 Live Match Scoring
-- **Real-time score tracking** with point-by-point recording
-- **Automatic game/set scoring logic**:
-  - Standard scoring (0, 15, 30, 40, deuce, advantage)
-  - Game win detection (first to 4 with 2-point lead)
-  - Set win detection with tiebreak support
-  - Tiebreak scoring (first to 7 with 2-point lead)
-- **Server management**: Automatic server alternation per game
-- **Detailed match statistics** tracked in real-time:
-  - Aces
-  - Double faults
-  - First serve percentage
-  - Winners and unforced errors
-  - Break points won/faced
-  - Total points won
-- **Match event timeline** capturing all significant match events
-- **Session management** (scheduled, in-progress, suspended, completed)
+### Web App (React + Vite)
 
-### 📊 Match Statistics
-- Real-time statistics display during live matches
-- Per-set breakdown of player performance
-- Comprehensive stats including:
-  - Serve performance (first/second serve wins)
-  - Shot analysis (winners vs errors)
-  - Break point opportunities
-  - Points won distribution
+- Authentication flow: signup, login, logout, session restore (`/auth/me`)
+- Protected routes for management screens
+- Player management (list, details, create)
+- Match management (list, details, create)
+- Live match control:
+	- Create live session from existing match
+	- Update session status (`scheduled`, `in-progress`, `suspended`, `completed`)
+	- Record points with serve metadata and winner context
+	- View live scoreboards and set-level statistics
+- Public viewer route for live match visualization
+- React Query caching/invalidation strategy for live data freshness
 
-### 🌍 Localization
-- Multi-language support (English & French)
-- Automatic browser language detection
-- Language preference persistence
-- Language switcher in header
-- Easy to add additional languages
+### Realtime Layer
 
-### 🎨 User Experience
-- Responsive design (mobile, tablet, desktop)
-- Smooth animations and transitions (Framer Motion)
-- Accessible form components
-- Type-safe React components (TypeScript)
-- Intuitive match tracking interface
+- WebSocket endpoint at `/live-updates`
+- Subscription by `matchId` via query param or subscribe message
+- Server-side selective broadcast (`live-match-update`) to subscribed clients only
+- Automatic client reconnect logic in web hook
 
-## 🛠️ Tech Stack
+### Backend (Express + SQLite)
 
-### Frontend
-| Technology | Purpose |
-|-----------|---------|
-| **React 19** | UI library & component framework |
-| **TypeScript 5.9** | Type-safe JavaScript development |
-| **Vite 7** | Fast build tool & dev server |
-| **Tailwind CSS** | Utility-first CSS styling |
-| **React Router 7** | Client-side routing |
-| **TanStack Query** | Server state management & caching |
-| **React Hook Form** | Lightweight form management |
-| **i18next** | Internationalization (i18n) |
-| **Framer Motion** | Animation library |
-| **Lucide React** | Icon library |
-| **PostCSS** | CSS preprocessing |
+- REST APIs for auth, players, matches, and live scoring
+- Session-based auth via `express-session` with SQLite session store
+- Tennis scoring workflow encoded in backend live scoring route:
+	- point progression
+	- deuce/advantage behavior via counters
+	- game/set/match transitions
+	- tie-break support
+	- stat/event updates in transaction boundaries
+- Database bootstrap on first run:
+	- schema creation
+	- optional dev admin seed
+	- sample players/matches seed
+
+### Mobile Viewer (Expo)
+
+- Two-screen read-only experience:
+	- live matches list
+	- live match detail
+- Consumes same REST + WebSocket live endpoints as web viewer
+
+## System Architecture
+
+```mermaid
+flowchart LR
+	A[Web App\nReact + Vite] -->|HTTP JSON| B[Express API]
+	M[Mobile Viewer\nExpo RN] -->|HTTP JSON| B
+	A -->|WebSocket /live-updates| C[WS Server]
+	M -->|WebSocket /live-updates| C
+	C --> B
+	B --> D[(SQLite DB)]
+	B --> E[(SQLite Session Store)]
+```
+
+### Runtime Boundaries
+
+- `src/`: frontend SPA
+- `server/`: API + WS server + DB bootstrap
+- `mobile-viewer/`: independent Expo app for live viewing
+- `database/`: persisted SQLite files (ignored in VCS)
+
+## Tech Stack
+
+### Frontend (Web)
+
+- React 19 + TypeScript
+- Vite 7
+- React Router 7
+- TanStack Query 5
+- Tailwind CSS 4
+- i18next + react-i18next
+- React Hook Form + Zod
+- Framer Motion
 
 ### Backend
-| Technology | Purpose |
-|-----------|---------|
-| **Express.js 5** | Web framework |
-| **SQLite (better-sqlite3)** | Lightweight relational database |
-| **Node.js 18+** | JavaScript runtime |
-| **CORS** | Cross-origin resource sharing |
-| **dotenv** | Environment variable management |
-| **Nodemon** | Development auto-reload |
 
-### Infrastructure & Deployment
-| Platform | Purpose |
-|----------|---------|
-| **Vercel** | Frontend hosting & deployment |
-| **Render.com** | Backend hosting (recommended) |
-| **GitHub** | Version control & CI/CD |
+- Node.js + Express 5
+- better-sqlite3
+- express-session + better-sqlite3-session-store
+- ws (WebSocket server)
+- bcryptjs (password hashing)
+- dotenv + cors
 
-## 🚀 Quick Start
+### Mobile
+
+- Expo 53
+- React Native 0.79
+- React Navigation
+
+### Tooling
+
+- ESLint 9
+- Vitest 4 + Testing Library
+- TypeScript project references
+
+## Repository Structure
+
+```text
+tennistracker/
+├── src/                 # Web frontend
+├── server/              # Express API + live scoring + WebSocket
+├── mobile-viewer/       # Expo mobile viewer app
+├── database/            # SQLite files (runtime, ignored)
+├── LIVE_SCORING.md      # Detailed live scoring model/API documentation
+├── LOCALIZATION.md      # i18n setup and workflow
+└── DEPLOYMENT.md        # Deployment guide (frontend + backend)
+```
+
+Important entry points:
+- [src/main.tsx](src/main.tsx)
+- [server/server.js](server/server.js)
+- [server/db.js](server/db.js)
+- [server/routes/live-scoring.js](server/routes/live-scoring.js)
+- [mobile-viewer/src/api.ts](mobile-viewer/src/api.ts)
+
+## Data Model
+
+Core entities include:
+- `players`
+- `matches`
+- `live_match_sessions`
+- `live_sets`
+- `live_games`
+- `live_points`
+- `live_match_events`
+- `live_match_stats`
+- `users`
+
+The live scoring model supports event timelines, per-point logging, and per-set stat aggregation for both players.
+
+For full schema details, see [LIVE_SCORING.md](LIVE_SCORING.md).
+
+## API Surface
+
+### Auth
+- `POST /auth/signup`
+- `POST /auth/login`
+- `POST /auth/logout`
+- `GET /auth/me`
+
+### Players (protected)
+- `GET /players`
+- `GET /players/:id`
+- `POST /players`
+
+### Matches (protected)
+- `GET /matches`
+- `GET /matches/:id`
+- `POST /matches`
+
+### Live Scoring
+- `GET /live-scoring/sessions`
+- `POST /live-scoring/sessions` (protected)
+- `GET /live-scoring/sessions/:matchId`
+- `POST /live-scoring/sessions/:sessionId/point` (protected)
+- status/set/stat endpoints (see [LIVE_SCORING.md](LIVE_SCORING.md))
+
+### Health
+- `GET /health`
+
+## Getting Started
 
 ### Prerequisites
-- **Node.js** v18 or higher
-- **npm** v9 or higher (or yarn/pnpm)
-- **Git** for version control
 
-### Installation
+- Node.js 18+
+- npm 9+
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd tennistracker
-   ```
+### 1) Install dependencies
 
-2. **Install dependencies**
-   ```bash
-   # Frontend dependencies
-   npm install
-   
-   # Backend dependencies
-   cd server
-   npm install
-   ```
+From workspace root:
 
-3. **Initialize the database**
-   ```bash
-   # Still in server directory
-   npm run init-db
-   ```
+```bash
+npm install
+```
 
-### Running Locally
+For backend:
 
-**Terminal 1 - Backend (from `server/` directory)**
+```bash
+cd server
+npm install
+```
+
+For mobile viewer (optional):
+
+```bash
+cd mobile-viewer
+npm install
+```
+
+### 2) Run backend API
+
+```bash
+cd server
+npm run dev
+```
+
+Default API URL: `http://localhost:3003`
+
+### 3) Run web app
+
+In a separate terminal:
+
 ```bash
 npm run dev
-# Server runs on http://localhost:3003
 ```
 
-**Terminal 2 - Frontend (from root directory)**
+Default web URL: `http://localhost:5173`
+
+### 4) Login (dev seed)
+
+On first non-production boot, backend seeds default credentials:
+- username: `admin`
+- password: `tennis123`
+
+Use only for local development; replace in real environments.
+
+## Environment Variables
+
+### Web (`.env` at root)
+
+- `VITE_API_URL` (default: `http://localhost:3003`)
+- `VITE_WS_URL` (optional override for WebSocket base URL)
+
+### Backend (`server/.env`)
+
+- `PORT` (default: `3003`)
+- `NODE_ENV` (`development` or `production`)
+- `SESSION_SECRET` (required in production)
+- `FRONTEND_URL` (production origin for CORS allowlist)
+- `SEED_DEFAULT_ADMIN` (`false` to disable local admin seeding)
+
+### Mobile (`mobile-viewer/.env`)
+
+- `EXPO_PUBLIC_API_URL`
+- `EXPO_PUBLIC_WS_URL` (optional)
+
+## Testing & Quality
+
+From project root:
+
 ```bash
-npm run dev
-# Frontend runs on http://localhost:5173
-```
-
-Open [http://localhost:5173](http://localhost:5173) in your browser to start using the app!
-
-## 🔌 API Reference
-
-### Base URL
-- **Development**: `http://localhost:3003`
-- **Production**: Your Render/Railway backend URL
-
-### Players Endpoints
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| `GET` | `/players` | Get all players |
-| `POST` | `/players` | Create a new player |
-| `GET` | `/players/:id` | Get player by ID |
-
-### Matches Endpoints
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| `GET` | `/matches` | Get all matches |
-| `POST` | `/matches` | Create a new match |
-| `GET` | `/matches/:id` | Get match by ID |
-
-### Live Scoring Endpoints
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| `GET` | `/live-scoring/sessions` | Get all live sessions |
-| `POST` | `/live-scoring/sessions` | Create a live session |
-| `GET` | `/live-scoring/sessions/:matchId` | Get session details |
-| `POST` | `/live-scoring/sessions/:sessionId/point` | Record a point |
-| `GET` | `/live-scoring/sessions/:sessionId/points` | Get all points in session |
-| `PATCH` | `/live-scoring/sessions/:sessionId/status` | Update session status |
-
-### Health Check
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| `GET` | `/health` | Check API health status |
-
-For detailed live scoring API documentation, see [LIVE_SCORING.md](./LIVE_SCORING.md)
-
-## 📁 Project Structure
-
-```
-tennistracker/
-├── 📂 src/                           # Frontend source code
-│   ├── 📂 components/               # React components
-│   │   ├── 📂 ui/                  # Reusable UI components
-│   │   │   ├── Button.tsx
-│   │   │   ├── Input.tsx
-│   │   │   ├── Tabs.tsx
-│   │   │   └── Countryselector/
-│   │   ├── Header.tsx
-│   │   ├── LanguageSelector.tsx
-│   │   ├── MatchHeader.tsx
-│   │   ├── MatchStats.tsx
-│   │   ├── MatchSummary.tsx
-│   │   ├── PlayerHeader.tsx
-│   │   └── SectionCard.tsx
-│   │
-│   ├── 📂 pages/                    # Page components
-│   │   ├── Home.tsx
-│   │   ├── 📂 matches/
-│   │   │   ├── Match.tsx
-│   │   │   ├── Matches.tsx
-│   │   │   └── CreateMatch.tsx
-│   │   └── 📂 players/
-│   │       ├── Players.tsx
-│   │       └── CreatePlayer.tsx
-│   │
-│   ├── 📂 hooks/                    # Custom React hooks
-│   │   ├── useLiveMatch.ts
-│   │   ├── useMatches.ts
-│   │   └── usePlayers.ts
-│   │
-│   ├── 📂 services/                 # API service layer
-│   │   ├── liveMatch.api.ts
-│   │   ├── matches.api.ts
-│   │   └── players.api.ts
-│   │
-│   ├── 📂 providers/                # Providers & context
-│   │   ├── AppProviders.tsx
-│   │   └── query-client.ts
-│   │
-│   ├── 📂 locales/                  # Translations
-│   │   ├── en.json
-│   │   └── fr.json
-│   │
-│   ├── 📂 assets/                   # Static assets
-│   ├── types.ts                     # TypeScript type definitions
-│   ├── i18n.ts                      # i18n configuration
-│   ├── main.tsx                     # Application entry point
-│   └── index.css                    # Global styles
-│
-├── 📂 server/                        # Backend source code
-│   ├── 📂 routes/                   # API route handlers
-│   │   ├── players.js
-│   │   ├── matches.js
-│   │   └── live-scoring.js
-│   ├── db.js                        # Database connection & init
-│   ├── init-db.js                   # Database schema & seeding
-│   ├── server.js                    # Express server setup
-│   └── package.json
-│
-├── 📂 database/                      # SQLite database (auto-created)
-├── 📂 public/                        # Static public assets
-│
-├── 📑 Configuration files
-│   ├── .env.example                 # Environment variables template
-│   ├── vite.config.ts              # Vite configuration
-│   ├── tsconfig.json               # TypeScript configuration
-│   ├── tailwind.config.ts          # Tailwind CSS configuration
-│   ├── postcss.config.ts           # PostCSS configuration
-│   └── eslint.config.js            # ESLint configuration
-│
-├── 📑 Documentation
-│   ├── README.md                    # This file
-│   ├── DEPLOYMENT.md                # Detailed deployment guide
-│   ├── QUICK_DEPLOY.md             # Quick deployment checklist
-│   ├── LOCALIZATION.md             # i18n setup guide
-│   ├── LIVE_SCORING.md             # Live scoring API reference
-│   └── LICENSE
-│
-└── package.json                     # Frontend dependencies
-```
-
-## 📝 Available Scripts
-
-### Frontend (Root Directory)
-```bash
-npm run dev         # Start development server (http://localhost:5173)
-npm run build       # Build for production
-npm run lint        # Run ESLint code linting
-npm run preview     # Preview production build locally
-```
-
-### Backend (server/ Directory)
-```bash
-npm run dev         # Start with nodemon (auto-reload)
-npm run start       # Start production server
-npm run init-db     # Initialize SQLite database with schema & seed data
-```
-
-## 🗄️ Database Schema
-
-### Core Tables
-
-**Players**
-- Player profiles with name, country, playing hand, backhand type, ranking
-
-**Matches**
-- Match records with tournament info, surface type, date, participants, scores
-
-### Live Scoring Tables
-
-**live_match_sessions**
-- Active/ongoing match sessions with status (scheduled, in-progress, suspended, completed)
-
-**live_sets**
-- Set-level scoring (games won, tiebreak status, set winner)
-
-**live_games**
-- Game-level scoring (points, server, game winner)
-
-**live_points**
-- Point-by-point tracking with serve details, shot type, result
-
-**live_match_events**
-- Timeline of significant match events (game won, set won, etc.)
-
-**live_match_stats**
-- Real-time player statistics per set (aces, faults, winners, errors, break points, etc.)
-
-For complete schema details, see the database initialization in [server/db.js](./server/db.js)
-
-## 🎯 Key Features In Detail
-
-### Intelligent Player Selection
-- When creating a match, selecting Player A automatically filters the Player B dropdown
-- Prevents duplicate player selection in the same match
-- Supports 239+ countries with flag icons
-- Player ranking and playing style information
-
-### Live Scoring Intelligence
-The app implements tennis scoring rules automatically:
-- **Valid game scores**: 0, 15, 30, 40, deuce, advantage
-- **Game win**: First to 4 points with 2+ point lead
-- **Set win**: First to 6 games with 2+ game lead
-- **Tiebreak**: Triggered at 6-6, first to 7 with 2+ point lead
-- **Server alternation**: Switches after each game
-
-### Real-Time Statistics
-Every point is tracked with:
-- Serve performance (first/second serve, aces, faults)
-- Shot analysis (winners vs unforced errors)
-- Break point opportunities and conversions
-- Complete per-set player statistics
-
-### Multi-Language Support (i18n)
-- English and French built-in
-- Automatic browser language detection
-- Manual language switcher in header
-- Easy to add new languages (see LOCALIZATION.md)
-
-## 🚀 Deployment
-
-### Production Deployment
-The application is designed for production with deployment on:
-
-**Frontend**: Vercel (automatic deployment on git push)
-- Zero-config deployment
-- Environment variables for API URL
-- Automatic HTTPS and CDN
-
-**Backend**: Render.com, Railway, or Fly.io
-- Provided render.yaml configuration
-- SQLite database persistence
-- Automatic database initialization
-
-For detailed deployment steps, see:
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - Complete deployment guide
-- [QUICK_DEPLOY.md](./QUICK_DEPLOY.md) - Quick deployment checklist
-
-### Environment Variables
-Create `.env` files in root (frontend) and `server/` directories:
-
-**Frontend** (.env)
-```
-VITE_API_URL=https://your-backend-url.com
-```
-
-**Backend** (server/.env)
-```
-PORT=3003
-NODE_ENV=production
-FRONTEND_URL=https://your-vercel-domain.vercel.app
-```
-
-## 📖 Usage Guide
-
-### Creating Your First Match
-
-1. **Create Players** (if needed)
-   - Go to "Players" → "Add Player"
-   - Fill in player details (name, country, playing style)
-   - Save
-
-2. **Create a Match**
-   - Go to "Matches" → "Create Match"
-   - Select two players
-   - Enter tournament info and surface type
-   - Set match date
-   - Create
-
-3. **Track Live Match**
-   - Open the match details
-   - MatchSummary shows current score (0-0, Set 1, Game 1)
-   - Use control buttons to record points:
-     - **Serve**: Record aces, faults, double faults
-     - **Winner**: Record who won the point
-     - **Error**: Record unforced errors
-   - Statistics update in real-time
-   - App automatically handles game/set progression
-
-4. **View Statistics**
-   - Live statistics display per set
-   - See detailed breakdown of aces, faults, winners, etc.
-   - Match event timeline shows all significant events
-
-### Language Switching
-- Click the **EN/FR** button in the header
-- Language preference is saved automatically
-- All content switches to selected language
-
-## 🛠️ Development
-
-### Project Architecture
-
-**Frontend** (React + TypeScript)
-- Component-based UI with type safety
-- Custom hooks for business logic (useLiveMatch, useMatches, usePlayers)
-- API service layer for clean separation
-- TanStack Query for server state management
-
-**Backend** (Express + SQLite)
-- RESTful API endpoints
-- Database auto-initialization
-- CORS configuration for frontend
-- Health check endpoint for monitoring
-
-**Key Design Patterns**
-- Separation of concerns (components, hooks, services)
-- Type-safe APIs with TypeScript
-- Database transactions for data consistency
-- Automatic player filtering to prevent duplicates
-
-### Code Style
-- **Linting**: ESLint with React & TypeScript rules
-- **TypeScript**: Strict mode enabled
-- **Format**: Consistent with Prettier-compatible ESLint config
-
-### Running Tests
-```bash
-# Run tests once
+npm run lint
 npm run test
-
-# Watch mode (auto-rerun on changes)
-npm run test:watch
-
-# Coverage report
 npm run test:coverage
-
-# Visual test runner UI
-npm run test:ui
 ```
 
-**Test Framework**: Vitest 4 with React Testing Library  
-**Coverage**: 90+ test cases for APIs, hooks, and utilities  
-**Read**: [TESTING.md](./TESTING.md) for comprehensive testing guide
+Test files are under [src/__tests__](src/__tests__).
 
-## 🤝 Contributing
+## Deployment
 
-Contributions are welcome! To contribute:
+Deployment split:
+- Web frontend: Vercel
+- Backend API + SQLite persistence: Render / Railway / Fly
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Make** your changes
-4. **Commit** with clear messages (`git commit -m 'Add amazing feature'`)
-5. **Push** to your branch (`git push origin feature/amazing-feature`)
-6. **Create** a Pull Request
+Detailed guide: [DEPLOYMENT.md](DEPLOYMENT.md)
 
-### Development Guidelines
-- Write clean, TypeScript-first code
-- Add type definitions for new features
-- Test changes locally before submitting PR
-- Update documentation as needed
-- Follow existing code style
+## Localization
 
-## 🐛 Known Issues & Future Improvements
+- Supported languages: English (`en`), French (`fr`)
+- i18n bootstrap in [src/i18n.ts](src/i18n.ts)
+- Locale dictionaries in [src/locales/en.json](src/locales/en.json) and [src/locales/fr.json](src/locales/fr.json)
 
-### Current Limitations
-- SQLite database is single-file (not ideal for very large-scale deployment)
-- Real-time features use polling (not WebSockets)
-- No authentication/authorization yet
+Localization guide: [LOCALIZATION.md](LOCALIZATION.md)
 
-### Planned Features
-- User authentication & personal match history
-- WebSocket support for real-time updates
-- Match replay/statistics export (PDF)
-- Player comparison analytics
-- Mobile app (React Native)
-- PostgreSQL migration option
+## Mobile Viewer
 
-## 📚 Documentation
+The Expo app lives in [mobile-viewer](mobile-viewer) and is intentionally scoped to live match consumption (not admin workflows).
 
-- [TESTING.md](./TESTING.md) - Unit testing guide with Vitest
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - Production deployment guide
-- [QUICK_DEPLOY.md](./QUICK_DEPLOY.md) - Quick deployment checklist
-- [LOCALIZATION.md](./LOCALIZATION.md) - i18n setup and translation guide
-- [LIVE_SCORING.md](./LIVE_SCORING.md) - Live scoring API reference
+See [mobile-viewer/README.md](mobile-viewer/README.md).
 
-## 📄 License
+## Roadmap Notes
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-## 🙋 Support
-
-- **Issues**: [GitHub Issues](../../issues)
-- **Discussions**: [GitHub Discussions](../../discussions)
-- **Email**: Contact project maintainer
+Planned or partially represented in UI/docs:
+- expanded live tracker UX
+- additional analytics depth
+- broader match format support and experience refinements
 
 ---
 
-**Made with ❤️ for tennis enthusiasts** 🎾
+Built for tennis analytics workflows with a clear separation of concerns between ingestion (live scoring), storage (SQLite), and presentation (web/mobile).
