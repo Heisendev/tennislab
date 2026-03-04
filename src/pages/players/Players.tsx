@@ -1,12 +1,11 @@
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
+import Header from "@components/Header";
 import Input from "@components/ui/Input";
 import { usePlayers } from "@hooks/usePlayers";
-import Header from "@components/Header";
 
 const container = {
   hidden: {},
