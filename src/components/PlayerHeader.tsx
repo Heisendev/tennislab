@@ -2,7 +2,7 @@ interface player {
   firstname: string;
   lastname: string;
   country: string;
-  rank?: number;
+  rank?: string;
 }
 
 interface PlayerHeaderProps {

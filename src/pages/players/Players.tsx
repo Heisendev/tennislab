@@ -37,7 +37,7 @@ const Players = () => {
     <div>
       <Header title={t("players.title")}>
         <Link
-          className="bg-(--bg-interactive-secondary) hover:bg-(--bg-interactive-secondary-hover) border border-(--bg-color-brand) text-(--bg-color-brand) px-4 py-2 text-sm rounded ml-auto"
+          className="bg-(--bg-interactive-secondary) hover:bg-(--bg-interactive-secondary-hover) border border-(--bg-color-brand) text-(--bg-color-brand) px-4 py-2 text-sm ml-auto"
           to="/players/new"
         >
           {t("players.createPlayer")}
@@ -74,6 +74,7 @@ const Players = () => {
             key={search}
           >
             {filtered.map((player) => (
+              <Link to={`/players/${player.id}`} key={player.id}>
               <motion.li key={player.id} variants={item}>
                 <div className="group relative backdrop-blur-sm bg-white border border-gray-400 p-2 md:p-5 hover:border-(--color-background-accent-secondary) transition-all duration-300 hover:glow-color-background-accent-secondary">
                   <div className="flex items-center gap-4 md:gap-6">
@@ -103,6 +104,7 @@ const Players = () => {
                   </div>
                 </div>
               </motion.li>
+              </Link>
             ))}
           </motion.ul>
         </div>

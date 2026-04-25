@@ -38,19 +38,23 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
     try {
-        const { firstname, lastname, country, hand, backhand, rank } = req.body;
+        const { firstname, lastname, picture, birthday, height_cm, weight_kg, country, hand, backhand, rank } = req.body;
         if (!firstname || !lastname || !country) {
             return res.status(400).json({ error: "Missing required fields" });
         }
 
+        const normalizedPicture = typeof picture === 'string' && picture.trim().length > 0
+            ? picture.trim()
+            : null;
+
         const db = getDatabase();
         const stmt = db.prepare(`
-            INSERT INTO players (firstname, lastname, country, hand, backhand, rank)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO players (firstname, picture, birthday, height_cm, weight_kg, lastname, country, hand, backhand, rank)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
-        const result = stmt.run(firstname, lastname, country, hand || null, backhand || null, rank || null);
+        const result = stmt.run(firstname, normalizedPicture, birthday || null, height_cm || null, weight_kg || null, lastname, country, hand || null, backhand || null, rank || null);
         
-        res.status(201).json({ id: result.lastInsertRowid, firstname, lastname, country, hand: hand || null, backhand: backhand || null, rank: rank || null }); 
+        res.status(201).json({ id: result.lastInsertRowid, firstname, picture: normalizedPicture, birthday: birthday || null, height_cm: height_cm || null, weight_kg: weight_kg || null, lastname, country, hand: hand || null, backhand: backhand || null, rank: rank || null }); 
     } catch (error) {
         console.error("Error creating player:", error);
         res.status(500).json({ error: "Internal server error" });

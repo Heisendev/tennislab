@@ -26,7 +26,7 @@ describe('Players API Service', () => {
           country: 'ES',
           hand: 'Right',
           backhand: 'Two-handed',
-          rank: 1,
+          rank: '1',
         },
         {
           id: 2,
@@ -35,7 +35,7 @@ describe('Players API Service', () => {
           country: 'IT',
           hand: 'Right',
           backhand: 'Two-handed',
-          rank: 2,
+          rank: '2',
         },
       ];
 
@@ -131,6 +131,7 @@ describe('Players API Service', () => {
         country: 'ES',
         hand: 'Right',
         backhand: 'Two-handed',
+        rank: '1',
       };
 
       setupMockFetch(mockPlayer);

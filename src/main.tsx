@@ -13,6 +13,7 @@ import Match from "@pages/matches/Match";
 import Matches from "@pages/matches/Matches";
 import ViewerMatch from "@pages/matches/ViewerMatch";
 import CreatePlayer from "@pages/players/CreatePlayer";
+import Player from "@pages/players/Player";
 import Players from "@pages/players/Players";
 import { AppProviders } from "@providers/AppProviders";
 
@@ -31,6 +32,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/matches/" element={<Matches />} />
           <Route path="/matches/:id" element={<Match />} />
           <Route path="/players" element={<Players />} />
+          <Route path="/players/:id" element={<Player />} />
           <Route path="/players/new" element={<CreatePlayer />} />
         </Route>
       </Routes>
