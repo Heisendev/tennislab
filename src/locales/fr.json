@@ -90,7 +90,9 @@
     "clay": "Terre Battue",
     "hard": "Dur",
     "grass": "Gazon",
-    "tournament": "Tournoi"
+    "tournament": "Tournoi",
+    "public": "Public",
+    "private": "Privé"
   },
   "liveMatch": {
     "in-progress": "Match en cours",
@@ -98,7 +100,10 @@
     "selectTossWinner": "Gagnant du Tirage au Sort",
     "complete": "Finir le Match",
     "completed": "Match terminé",
+    "suspended": "Match en pause",
     "paused": "Match en pause",
+    "pause": "Suspendre le match",
+    "resume": "Reprendre le match",
     "startLiveMatch": "Démarrer le Match",
     "scheduleMatch": "Programmer le Match",
     "controls": "Contrôles du Match en Direct",

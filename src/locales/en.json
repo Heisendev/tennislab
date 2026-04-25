@@ -88,7 +88,9 @@
     "clay": "Clay",
     "hard": "Hard",
     "grass": "Grass",
-    "tournament": "Tournament"
+    "tournament": "Tournament",
+    "public": "Public",
+    "private": "Private"
   },
   "liveMatch": {
     "in-progress": "Match in progress",
@@ -96,6 +98,9 @@
     "selectTossWinner": "Select Toss Winner",
     "complete": "End Match",  
     "completed": "Match completed",  
+    "suspended": "Match suspended",
+    "resume": "Resume match",
+    "pause": "Suspend match",
     "paused": "Match paused",
     "startLiveMatch": "Start Live Match",
     "scheduleMatch": "Schedule Match",

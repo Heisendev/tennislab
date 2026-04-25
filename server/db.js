@@ -14,9 +14,9 @@ let isInitialized = false;
 
 function initializeDatabase() {
     if (isInitialized) return;
-    
+
     console.log('🗄️  Initializing database...');
-    
+
     // Ensure database directory exists
     if (!fs.existsSync(dbDir)) {
         fs.mkdirSync(dbDir, { recursive: true });
@@ -29,24 +29,36 @@ function initializeDatabase() {
     db.exec(`
 CREATE TABLE IF NOT EXISTS players (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    rank INTEGER,
+    rank string,
     firstname TEXT NOT NULL,
     lastname TEXT NOT NULL,
+    picture TEXT,
+    birthday TEXT,
+    height_cm INTEGER,
+    weight_kg INTEGER,
     hand TEXT CHECK(hand IN ('Left', 'Right')),
     backhand TEXT CHECK(backhand IN ('One-handed', 'Two-handed')),
     country TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );`);
 
+    const playerColumns = db.prepare("PRAGMA table_info(players)").all();
+    const hasPictureColumn = playerColumns.some((column) => column.name === 'picture');
+    if (!hasPictureColumn) {
+        db.exec("ALTER TABLE players ADD COLUMN picture TEXT;");
+    }
+
     db.exec(`
 CREATE TABLE IF NOT EXISTS matches (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    isPublic BOOLEAN DEFAULT 1,
+    creator_id INTEGER NOT NULL,
     tournament TEXT NOT NULL,
     round TEXT NOT NULL,
     surface TEXT NOT NULL,
     date TEXT NOT NULL,
     duration TEXT,
-    format TEXT CHECK(format IN ('BO3', 'BO5', 'FR2')) DEFAULT 'BO3',
+    format TEXT CHECK(format IN ('BO3', 'BO5', 'FR2', 'FR3')) DEFAULT 'BO3',
     playerA_id INTEGER NOT NULL,
     playerB_id INTEGER NOT NULL,
     playerASeed INTEGER,
@@ -55,18 +67,21 @@ CREATE TABLE IF NOT EXISTS matches (
     tossWinner TEXT CHECK(tossWinner IN ('A', 'B')),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (playerA_id) REFERENCES players(id),
-    FOREIGN KEY (playerB_id) REFERENCES players(id)
+    FOREIGN KEY (playerB_id) REFERENCES players(id),
+    FOREIGN KEY (creator_id) REFERENCES users(id)
 );`);
 
     db.exec(`
 CREATE TABLE IF NOT EXISTS live_match_sessions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     match_id INTEGER NOT NULL UNIQUE,
-    status TEXT CHECK(status IN ('scheduled', 'in-progress', 'suspended', 'completed')) DEFAULT 'scheduled',
+    status TEXT CHECK(status IN ('scheduled', 'in-progress', 'suspended', 'resumed', 'completed')) DEFAULT 'scheduled',
     current_set INTEGER DEFAULT 1,
     current_server TEXT CHECK(current_server IN ('A', 'B')),
     match_start_time TEXT,
     match_end_time TEXT,
+    suspended_at TEXT,
+    resumed_at TEXT,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (match_id) REFERENCES matches(id)
@@ -193,24 +208,16 @@ CREATE INDEX IF NOT EXISTS idx_live_stats_session_id ON live_match_stats(session
     if (playerCount === 0) {
         console.log('   Seeding default players and matches...');
         db.exec(`
-INSERT INTO players (rank, firstname, lastname, hand, backhand, country) VALUES 
-(1, 'Carlos', 'Alcaraz', 'Right', 'Two-handed', 'ES'), 
-(2, 'Jannik', 'Sinner', 'Right', 'Two-handed', 'IT'),
-(3, 'Novak', 'Djokovic', 'Right', 'Two-handed', 'RS'),
-(4, 'Alexander', 'Zverev', 'Right', 'Two-handed', 'DE'), 
-(5, 'Lorenzo', 'Musetti', 'Right', 'Two-handed', 'IT'), 
-(6, 'Felix', 'Auger-Aliassime', 'Right', 'Two-handed', 'CA'), 
-(7, 'Taylor', 'Fritz', 'Right', 'Two-handed', 'US'), 
-(8, 'Rafael', 'Nadal', 'Right', 'Two-handed', 'ES'), 
-(9, 'Roger', 'Federer', 'Right', 'One-handed', 'CH');
-        `);
-
-        db.exec(`
-INSERT INTO matches (tournament, round, surface, format, date, duration, playerA_id, playerB_id, playerASeed, playerBSeed) VALUES
-('Wimbledon', 'Final', 'Grass', 'BO5', '2026-06-06T15:57:31.000Z', '2h30m', 1, 3, 1, 3),
-('US Open', 'Semi-Final', 'Hard', 'BO5', '2026-06-06T15:57:31.000Z', '3h15m', 3, 7, 3, 7),
-('Open de Saran', '1st round', 'Hard', 'BO3', '2023-06-12T15:57:31.000Z', '2h45m', 9, 8, 1, 2),
-('Roland Garros', 'Quarter-Final', 'Clay', 'BO5', '2023-06-12T15:57:31.000Z', '2h45m', 1, 2, 1, 2);
+INSERT INTO players (rank, firstname, lastname, birthday, height_cm, weight_kg, hand, backhand, country) VALUES 
+('1', 'Carlos', 'Alcaraz', '2003-05-05', 185, 75, 'Right', 'Two-handed', 'ES'), 
+('2', 'Jannik', 'Sinner', '2001-08-16', 188, 78, 'Right', 'Two-handed', 'IT'),
+('3', 'Novak', 'Djokovic', '1987-05-22', 188, 77, 'Right', 'Two-handed', 'RS'),
+('4', 'Alexander', 'Zverev', '1997-04-20', 198, 90, 'Right', 'Two-handed', 'DE'), 
+('5', 'Lorenzo', 'Musetti', '2002-06-03', 183, 70, 'Right', 'Two-handed', 'IT'), 
+('6', 'Felix', 'Auger-Aliassime', '2000-08-08', 193, 85, 'Right', 'Two-handed', 'CA'), 
+('7', 'Taylor', 'Fritz', '1997-10-28', 193, 86, 'Right', 'Two-handed', 'US'), 
+('8', 'Rafael', 'Nadal', '1986-06-03', 185, 85, 'Right', 'Two-handed', 'ES'), 
+('9', 'Roger', 'Federer', '1981-08-08', 185, 85, 'Right', 'One-handed', 'CH');
         `);
     }
 

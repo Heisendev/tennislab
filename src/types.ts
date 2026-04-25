@@ -6,7 +6,11 @@ export type User = {
 export type NewPlayer = {
   firstname: string;
   lastname: string;
-  rank?: number;
+  picture?: string;
+  birthday?: string;
+  height_cm?: number;
+  weight_kg?: number;
+  rank?: string;
   hand?: "Left" | "Right";
   backhand?: "One-handed" | "Two-handed";
   country: string;
@@ -53,6 +57,8 @@ export type NewMatch = {
   playerA: string;
   playerB: string;
   format: "BO3" | "BO5" | "FR2";
+  isPublic: boolean;
+  userId: number;
 };
 
 export type Match = Omit<NewMatch, "playerA" | "playerB"> & {
@@ -72,8 +78,10 @@ export type LiveMatch = Omit<Match, "duration"> & {
   status: "created" | "scheduled" | "in-progress" | "completed" | "suspended";
   currentSet: number;
   currentServer?: "A" | "B";
-  MatchStartTime?: string;
-  MatchEndTime?: string;
+  matchStartTime: string;
+  matchEndTime?: string;
+  suspendedAt?: string;
+  resumedAt?: string;
   sets: Set[];
   currentGame?: CurrentGame;
   error?: string;
