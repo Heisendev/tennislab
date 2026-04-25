@@ -8,8 +8,8 @@ import Header from "@components/Header";
 import Input from "@components/ui/Input";
 import { useCreateMatch } from "@hooks/useMatches";
 import { usePlayers } from "@hooks/usePlayers";
-
 import "react-datepicker/dist/react-datepicker.css";
+import { useAuth } from "@providers/useAuth";
 
 const defaultValues = {
   tournament: "",
@@ -19,9 +19,11 @@ const defaultValues = {
   playerA: "",
   playerB: "",
   format: "BO3" as const,
+  isPublic: true,
 };
 
 const CreateMatch = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { mutate } = useCreateMatch();
@@ -36,10 +38,12 @@ const CreateMatch = () => {
     playerA: string;
     playerB: string;
     tournament: string;
+    isPublic: boolean;
     date: string;
     format: "BO3" | "BO5" | "FR2";
     surface: "Clay" | "Hard" | "Grass";
     round: string;
+    userId: number;
   };
 
   const { data: players } = usePlayers();
@@ -50,6 +54,7 @@ const CreateMatch = () => {
 
   const selectedPlayer1 = useWatch({ control, name: "playerA" });
   const selectedPlayer2 = useWatch({ control, name: "playerB" });
+  const publicValue = useWatch({ control, name: "isPublic" });
 
   useEffect(() => {
     register("date");
@@ -57,6 +62,7 @@ const CreateMatch = () => {
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     data.date = selectedDate!.toISOString();
+    data.userId = user!.id;
     mutate(data, {
       onSuccess: async () => {
         navigate("/matches");
@@ -167,12 +173,23 @@ const CreateMatch = () => {
                   id="date"
                   selected={selectedDate}
                   onChange={handleChange}
-                  className="rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <div className="md:grid md:grid-cols-[150px_1fr] md:gap-4 mb-2 flex flex-col">
+                <label htmlFor="isPublic">{t("matches.isPublic")}</label>
+                <input
+                  type="checkbox"
+                  id="isPublic"
+                  {...register("isPublic")}
+                  checked={publicValue}
                 />
               </div>
             </fieldset>
             <fieldset className="flex flex-col border-0 mr-auto max-w-md text-left mb-4 p-0">
-              <legend className="font-display text-xl mb-4">{t("matches.players")}</legend>
+              <legend className="font-display text-xl mb-4">
+                {t("matches.players")}
+              </legend>
               <div className="flex flex-col md:grid md:grid-cols-[150px_1fr] md:gap-4 mb-2">
                 <label className="flex items-center gap-2" htmlFor="player1">
                   {t("matches.player")} A
@@ -180,7 +197,7 @@ const CreateMatch = () => {
                 <select
                   id="player1"
                   {...register("playerA")}
-                  className="rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="">{t("matches.selectPlayer")}</option>
                   {players &&
@@ -202,7 +219,7 @@ const CreateMatch = () => {
                 <select
                   id="player2"
                   {...register("playerB")}
-                  className="rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="">{t("matches.selectPlayer")}</option>
                   {players &&

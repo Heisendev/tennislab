@@ -7,7 +7,8 @@ router.get('/', (req, res) => {
     try {
         const db = getDatabase();
         const matches = [];
-        const matchesRequest = db.prepare(`
+        const userId = req.session?.userId;
+        let query = `
             SELECT
                 m.id,
                 m.tournament,
@@ -18,6 +19,8 @@ router.get('/', (req, res) => {
                 m.duration,
                 m.winner,
                 m.tossWinner,
+                m.isPublic,
+                m.creator_id,
 
                 json_object(
                     'id', pa.id,
@@ -40,9 +43,16 @@ router.get('/', (req, res) => {
             FROM matches m
             JOIN players pa ON pa.id = m.playerA_id
             JOIN players pb ON pb.id = m.playerB_id
-            `);
+            `;
+
+
+            if (userId) {
+                query += ` WHERE m.isPublic = 1 OR (m.isPublic = 0 AND m.creator_id = ?)`;
+            }
+
+            const matchesRequest = db.prepare(query);
             //for each match, we want to get the playerA and playerB info as a JSON object
-            for (const match of matchesRequest.iterate()) {
+            for (const match of matchesRequest.iterate(userId)) {
                 try {
                     match.playerA = JSON.parse(match.playerA);
                 } catch (error) {
@@ -67,19 +77,21 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
     try {
-        const {tournament, surface, round, format, date, playerA, playerB} = req.body;
-        if(!tournament || !playerA || !playerB|| !surface || !format || !date || !round ){
+        const {tournament, surface, round, format, date, playerA, playerB, isPublic, userId} = req.body;
+        if(!tournament || !playerA || !playerB|| !surface || !format || !date || !round || isPublic === undefined || !userId){
             return res.status(400).json({error: "missing required field"})
         }
 
+        const publicBoolean = isPublic ? 1 : 0;
+
         const db = getDatabase();
         const stmt = db.prepare(`
-           INSERT INTO matches (tournament, surface, round, format, playerA_id, playerB_id, date)
-           VALUES (?, ?, ?, ?, ?, ?, ?) 
+           INSERT INTO matches (tournament, isPublic, creator_id, surface, round, format, playerA_id, playerB_id, date)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) 
         `);
-        const result = stmt.run(tournament, surface, round, format, playerA, playerB, date);
+        const result = stmt.run(tournament, publicBoolean, userId, surface, round, format, playerA, playerB, date);
 
-        res.status(201).json({id: result.lastInsertRowid, tournament, surface, round, format, playerA, playerB, date})
+        res.status(201).json({id: result.lastInsertRowid, tournament, surface, round, format, playerA, playerB, date, isPublic, userId});
     } catch (error) {
         console.error("Error creating match:", error);
         res.status(500).json({ error: "Internal server error" });

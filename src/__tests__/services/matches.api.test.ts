@@ -20,6 +20,8 @@ describe('Matches API Service', () => {
           date: '2024-06-01',
           tossWinner: 'A',
           winner: 'A',
+          isPublic: true,
+          userId: 1,
           playerA: {
             id: 1,
             firstname: 'Novak',
@@ -54,6 +56,8 @@ describe('Matches API Service', () => {
           surface: 'Clay',
           tossWinner: 'B',
           winner: 'B',
+          isPublic: true,
+          userId: 1,
         },
       ];
       setupMockFetch(mockMatches);
@@ -112,6 +116,8 @@ describe('Matches API Service', () => {
         date: '2024-09-01',
         tossWinner: 'A',
         winner: 'B',
+        isPublic: true,
+        userId: 1,
       };
       setupMockFetch([mockMatch]);
 
@@ -152,6 +158,8 @@ describe('Matches API Service', () => {
         format: 'BO5',
         date: '2024-06-01',
         tossWinner: 'A',
+        isPublic: true,
+        userId: 1,
         winner: 'A',
       };
       setupMockFetch(mockMatch);
@@ -199,6 +207,8 @@ describe('Matches API Service', () => {
         date: '2024-01-20',
         surface: 'Hard',
         format: 'BO5',
+        isPublic: true,
+        userId: 1,
       };
       const createdMatch: Match = {
         tournament: 'Australian Open',
@@ -218,6 +228,8 @@ describe('Matches API Service', () => {
         surface: 'Hard',
         format: 'BO5',
         id: 100,
+        isPublic: true,
+        userId: 1,
       };
       setupMockFetch(createdMatch);
 
@@ -262,6 +274,9 @@ describe('Matches API Service', () => {
         date: '2024-01-20',
         surface: 'Hard',
         format: 'BO5',
+        isPublic: true,
+        userId: 1,
+
       };
       setupMockFetchError('Player not found', 404);
 
@@ -285,6 +300,9 @@ describe('Matches API Service', () => {
         date: '2024-01-20',
         surface: 'Hard',
         format: 'BO5',
+        isPublic: true,
+        userId: 1,
+
       };
       const createdMatch: Match = {
         ...newMatch,
