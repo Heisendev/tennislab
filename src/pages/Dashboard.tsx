@@ -2,8 +2,9 @@ import { BarChart3, List, LogOut, PenSquare, Radio, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
-import { LanguageSelector } from "@components/LanguageSelector";
+import Header from "@components/Header";
 import SectionCard from "@components/SectionCard";
+import { Button } from "@components/ui/Button";
 import { useAuth } from "@providers/useAuth";
 
 const Home = () => {
@@ -49,19 +50,19 @@ const Home = () => {
   ];
 
   return (
+    <>
+    <Header title={t("home.title")} showBack={false}>
+      <Button
+        className="ml-auto"
+        variant="secondary"
+        onClick={logout}
+        title={t("auth.logout")}
+      >
+        <LogOut size={15} />
+        <span className="hidden sm:inline">{user?.username}</span>
+      </Button>
+    </Header>
     <div className="min-h-screen bg-background court-texture flex flex-col items-center justify-center px-4 py-16">
-      <div className="absolute top-4 right-4 flex items-center gap-2">
-        <LanguageSelector />
-        <button
-          onClick={logout}
-          title={t("auth.logout")}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-md hover:bg-white/20"
-        >
-          <LogOut size={15} />
-          <span className="hidden sm:inline">{user?.username}</span>
-        </button>
-      </div>
-
       <div className="text-center mb-12">
         <h1 className="text-5xl md:text-7xl font-display tracking-wider text-foreground flex glow-text">
           <img src="../../logo.png" alt="" className="inline-block md:mr-6 md:max-h-16 mr-4 max-h-11" />{t("home.title")}
@@ -94,6 +95,7 @@ const Home = () => {
         Experimental Tennis Stats Viewer • Data for demonstration purposes
       </p>
     </div>
+    </>
   );
 };
 

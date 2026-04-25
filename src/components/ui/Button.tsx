@@ -15,7 +15,7 @@ const buttonStyles = cva(
     variants: {
       variant: {
         primary: 'bg-(--bg-interactive-primary) hover:bg-(--bg-interactive-primary-hover) text-white',
-        secondary: 'bg-(--bg-interactive-secondary) hover:bg-(--bg-interactive-secondary-hover) text-(--bg-color-brand) border border-gray-400',
+        secondary: 'bg-(--bg-interactive-secondary) hover:bg-(--bg-interactive-secondary-hover) text-(--bg-color-brand) border border-gray-400 hover:cursor-pointer',
         danger: 'bg-(--bg-interactive-danger) hover:bg-(--bg-interactive-danger-hover) text-white',
         controlPlayerA: 'bg-white hover:bg-(--bg-dataviz-green) hover:text-white border border-green-500 text-(--bg-dataviz-green)',
         controlPlayerB: 'bg-white hover:bg-(--bg-dataviz-blue) hover:text-white border border-blue-600 text-(--bg-dataviz-blue)',
@@ -27,10 +27,10 @@ const buttonStyles = cva(
   }
 )
 
-export const Button = ({ isLoading = false, variant = 'primary', children, ...props }: ButtonProps) => {
+export const Button = ({ isLoading = false, variant = 'primary', children, className, ...props }: ButtonProps) => {
     return (
         <button 
-            className={buttonStyles({ variant }) + (props.className ? ` ${props.className}` : '')}
+      className={buttonStyles({ variant }) + (className ? ` ${className}` : '')}
             disabled={isLoading || props.disabled} 
             aria-busy={isLoading}
             {...props} 
