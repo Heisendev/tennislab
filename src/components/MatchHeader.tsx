@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -28,6 +28,7 @@ const MatchHeader = ({
 }) => {
   const { tournament, round, surface, date, duration } = match;
   const [tossWinner, setTossWinner] = useState<"A" | "B" | undefined>(undefined);
+  const [liveClock, setLiveClock] = useState<string>("00:00");
   const createLiveMatch = useCreateLiveMatch();
   const updateMatchStatus = useUpdateLiveMatchStatus();
 
@@ -36,6 +37,31 @@ const MatchHeader = ({
   const handleStartLiveMatch = () => {
     createLiveMatch.mutate(match.id);
   };
+
+  useEffect(() => {
+    if (!liveMatch || liveMatch.status !== "in-progress") return;
+    
+    let startTime = new Date(liveMatch.matchStartTime).getTime();
+
+    if(liveMatch.suspendedAt && liveMatch.resumedAt) {
+      const suspendedAt = new Date(liveMatch.suspendedAt).getTime();
+      const resumedAt = new Date(liveMatch.resumedAt).getTime();
+      const suspensionDuration = resumedAt - suspendedAt;
+      startTime += suspensionDuration;
+    }
+    const getElapsed = () => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const h = Math.floor(elapsed / 3600);
+      const m = Math.floor((elapsed % 3600) / 60);
+      const s = elapsed % 60;
+      const mm = String(m).padStart(2, "0");
+      const ss = String(s).padStart(2, "0");
+      return h > 0 ? `${String(h).padStart(2, "0")}:${mm}:${ss}` : `${mm}:${ss}`;
+    };
+
+    const interval = setInterval(() => setLiveClock(getElapsed()), 1000);
+    return () => clearInterval(interval);
+  }, [liveMatch]);
 
   return (
     <>
@@ -84,17 +110,46 @@ const MatchHeader = ({
               </div>
             )}
             {liveMatch.status === "in-progress" && (
-              <Button
-                onClick={() =>
-                  updateMatchStatus.mutate({
-                    liveMatchId: liveMatch.id,
-                    status: "completed",
-                  })
-                }
-                variant="secondary"
-              >
-                {t("liveMatch.complete")}
-              </Button>
+              <>
+                <Button
+                  onClick={() =>
+                    updateMatchStatus.mutate({
+                      liveMatchId: liveMatch.id,
+                      status: "suspended",
+                    })
+                  }
+                  variant="secondary"
+                >
+                  {t("liveMatch.pause")}
+                </Button>
+                <Button
+                  onClick={() =>
+                    updateMatchStatus.mutate({
+                      liveMatchId: liveMatch.id,
+                      status: "completed",
+                    })
+                  }
+                  variant="secondary"
+                >
+                  {t("liveMatch.complete")}
+                </Button>
+              </>
+            )}
+            {liveMatch.status === "suspended" && (
+              <>
+                <Button
+                  onClick={() =>
+                    updateMatchStatus.mutate({
+                      liveMatchId: liveMatch.id,
+                      status: "resumed",
+                      tossWinner: liveMatch.tossWinner,
+                    })
+                  }
+                  variant="secondary"
+                >
+                  {t("liveMatch.resume")}
+                </Button>
+              </>
             )}
           </div>
         )}
@@ -108,7 +163,7 @@ const MatchHeader = ({
           <span className="w-1 h-1 rounded-full bg-muted-foreground" />
           <span>{formatDate(date)}</span>
           <span className="w-1 h-1 rounded-full bg-muted-foreground" />
-          <span>{duration}</span>
+          <span>{duration || liveClock}</span>
         </div>
       </div>
     </>

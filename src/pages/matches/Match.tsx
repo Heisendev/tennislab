@@ -1,4 +1,3 @@
-
 // import type { MatchData } from '../types';
 import { AlertCircle, Target, Zap } from "lucide-react";
 import { useState } from "react";
@@ -27,6 +26,8 @@ const createDefaultLiveMatch = (match: MatchType): LiveMatch => ({
   playerB: match.playerB,
   winner: match.winner,
   tossWinner: match.tossWinner,
+  isPublic: match.isPublic,
+  userId: match.userId,
   status: "created",
   currentSet: 1,
   currentServer: match.tossWinner === "A" ? "A" : undefined,
@@ -43,12 +44,27 @@ const Match = () => {
   const [serveType, setServeType] = useState<"first" | "second">("first");
 
   // Use default live match when no data or match hasn't started
-  const displayLiveMatch = liveMatch || (match && createDefaultLiveMatch(match));
+  const displayLiveMatch =
+    liveMatch || (match && createDefaultLiveMatch(match));
 
-  const handleAddPoint = (matchId: number, liveMatchId: number, player?: 'A' | 'B', serveResult?: string, serveType?: string, winnerShot?: string) => {
+  const handleAddPoint = (
+    matchId: number,
+    liveMatchId: number,
+    player?: "A" | "B",
+    serveResult?: string,
+    serveType?: string,
+    winnerShot?: string,
+  ) => {
     // Logic to start live match goes here
-    addPoint.mutate({ matchId, liveMatchId, player, serveResult, serveType, winnerShot });
-    if (serveResult === 'error') {
+    addPoint.mutate({
+      matchId,
+      liveMatchId,
+      player,
+      serveResult,
+      serveType,
+      winnerShot,
+    });
+    if (serveResult === "error") {
       setServeType("second");
     } else {
       setServeType("first");
@@ -61,11 +77,8 @@ const Match = () => {
 
   return (
     <>
-      <MatchHeader
-        match={match}
-        liveMatch={displayLiveMatch}
-      />
-      <div className="max-w-4xl mx-auto flex flex-row justify-between">
+      <MatchHeader match={match} liveMatch={displayLiveMatch} />
+      <div className="mx-auto flex max-w-4xl flex-row justify-between">
         <PlayerHeader player={match.playerA} winner={match.winner === "A"} />
         <PlayerHeader player={match.playerB} winner={match.winner === "B"} />
       </div>
@@ -81,64 +94,201 @@ const Match = () => {
         />
       )}
 
-      {displayLiveMatch && !displayLiveMatch.error && displayLiveMatch.status === "in-progress" && (
-        <>
-          <h2 className="text-xl font-bold mb-4">{t('liveMatch.controls')}</h2>
-          <div className="mx-2 max-w-4xl md:mx-auto bg-white border border-gray-300 mb-8 py-4">
-            {(displayLiveMatch.currentGame?.server && displayLiveMatch.currentGame?.server === "A") ? (
-              <h3>{t('liveMatch.currentServer')}: {displayLiveMatch.playerA.firstname} {displayLiveMatch.playerA.lastname}</h3>
-            ) : (<h3>{t('liveMatch.currentServer')}: {displayLiveMatch.playerB.firstname} {displayLiveMatch.playerB.lastname}</h3>)}
-            <div className="mb-2 px-8">
-              <h4 className="text-left mb-1 mt-2">{t('liveMatch.serve')}</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="secondary" disabled={serveType === "second"} onClick={() => handleAddPoint(match.id, displayLiveMatch.id, undefined, 'error', 'first')}>
-                  {t("liveMatch.stats.first_serve_fault")}
-                </Button>
-                <Button variant="secondary" disabled={serveType === "first"} onClick={() => handleAddPoint(match.id, displayLiveMatch.id, undefined, 'double-fault', 'second')}>
-                  <AlertCircle className="w-3.5 h-3.5 mr-2" />
-                  {t("liveMatch.stats.double_faults")}
-                </Button>
-                <div className="col-span-2">
-                  <Button variant="secondary" style={{ width: '100%' }} onClick={() => handleAddPoint(match.id, displayLiveMatch.id, undefined, 'ace', serveType)}>
-                    <Zap className="w-3.5 h-3.5 mr-2 text-primary" />
-                    {t("liveMatch.stats.ace")}
+      {displayLiveMatch &&
+        !displayLiveMatch.error &&
+        displayLiveMatch.status === "in-progress" && (
+          <>
+            <h2 className="mb-4 text-xl font-bold">
+              {t("liveMatch.controls")}
+            </h2>
+            <div className="mx-2 mb-8 max-w-4xl border border-gray-300 bg-white py-4 md:mx-auto">
+              {displayLiveMatch.currentGame?.server &&
+              displayLiveMatch.currentGame?.server === "A" ? (
+                <h3>
+                  {t("liveMatch.currentServer")}:{" "}
+                  {displayLiveMatch.playerA.firstname}{" "}
+                  {displayLiveMatch.playerA.lastname}
+                </h3>
+              ) : (
+                <h3>
+                  {t("liveMatch.currentServer")}:{" "}
+                  {displayLiveMatch.playerB.firstname}{" "}
+                  {displayLiveMatch.playerB.lastname}
+                </h3>
+              )}
+              <div className="mb-2 px-8">
+                <h4 className="mt-2 mb-1 text-left">{t("liveMatch.serve")}</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    variant="secondary"
+                    disabled={serveType === "second"}
+                    onClick={() =>
+                      handleAddPoint(
+                        match.id,
+                        displayLiveMatch.id,
+                        undefined,
+                        "error",
+                        "first",
+                      )
+                    }
+                  >
+                    {t("liveMatch.stats.first_serve_fault")}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={serveType === "first"}
+                    onClick={() =>
+                      handleAddPoint(
+                        match.id,
+                        displayLiveMatch.id,
+                        undefined,
+                        "double-fault",
+                        "second",
+                      )
+                    }
+                  >
+                    <AlertCircle className="mr-2 h-3.5 w-3.5" />
+                    {t("liveMatch.stats.double_faults")}
+                  </Button>
+                  <div className="col-span-2">
+                    <Button
+                      variant="secondary"
+                      style={{ width: "100%" }}
+                      onClick={() =>
+                        handleAddPoint(
+                          match.id,
+                          displayLiveMatch.id,
+                          undefined,
+                          "ace",
+                          serveType,
+                        )
+                      }
+                    >
+                      <Zap className="text-primary mr-2 h-3.5 w-3.5" />
+                      {t("liveMatch.stats.ace")}
+                    </Button>
+                  </div>
+                </div>
+                <h4 className="mt-2 mb-1 text-left">
+                  {t("liveMatch.stats.winner")}
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    variant="controlPlayerA"
+                    onClick={() =>
+                      handleAddPoint(
+                        match.id,
+                        displayLiveMatch.id,
+                        "A",
+                        undefined,
+                        serveType,
+                        "winner",
+                      )
+                    }
+                  >
+                    <Target className="mr-2 h-3.5 w-3.5" />
+                    {displayLiveMatch.playerA.firstname}{" "}
+                    {displayLiveMatch.playerA.lastname}
+                  </Button>
+                  <Button
+                    variant="controlPlayerB"
+                    onClick={() =>
+                      handleAddPoint(
+                        match.id,
+                        displayLiveMatch.id,
+                        "B",
+                        undefined,
+                        serveType,
+                        "winner",
+                      )
+                    }
+                  >
+                    <Target className="mr-2 h-3.5 w-3.5" />
+                    {displayLiveMatch.playerB.firstname}{" "}
+                    {displayLiveMatch.playerB.lastname}
+                  </Button>
+                </div>
+                <h4 className="mt-2 mb-1 text-left">
+                  {t("liveMatch.stats.unforced_error")}
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    variant="controlPlayerA"
+                    onClick={() =>
+                      handleAddPoint(
+                        match.id,
+                        displayLiveMatch.id,
+                        "B",
+                        undefined,
+                        serveType,
+                        "unforced-error",
+                      )
+                    }
+                  >
+                    {displayLiveMatch.playerA.firstname}{" "}
+                    {displayLiveMatch.playerA.lastname}
+                  </Button>
+                  <Button
+                    variant="controlPlayerB"
+                    onClick={() =>
+                      handleAddPoint(
+                        match.id,
+                        displayLiveMatch.id,
+                        "A",
+                        undefined,
+                        serveType,
+                        "unforced-error",
+                      )
+                    }
+                  >
+                    {displayLiveMatch.playerB.firstname}{" "}
+                    {displayLiveMatch.playerB.lastname}
+                  </Button>
+                </div>
+                <h4 className="mt-2 mb-1 text-left">
+                  {t("liveMatch.stats.error")}
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    variant="controlPlayerA"
+                    onClick={() =>
+                      handleAddPoint(
+                        match.id,
+                        displayLiveMatch.id,
+                        "B",
+                        undefined,
+                        serveType,
+                        "error",
+                      )
+                    }
+                  >
+                    {displayLiveMatch.playerA.firstname}{" "}
+                    {displayLiveMatch.playerA.lastname}
+                  </Button>
+                  <Button
+                    variant="controlPlayerB"
+                    onClick={() =>
+                      handleAddPoint(
+                        match.id,
+                        displayLiveMatch.id,
+                        "A",
+                        undefined,
+                        serveType,
+                        "error",
+                      )
+                    }
+                  >
+                    {displayLiveMatch.playerB.firstname}{" "}
+                    {displayLiveMatch.playerB.lastname}
                   </Button>
                 </div>
               </div>
-              <h4 className="text-left mb-1 mt-2">{t('liveMatch.stats.winner')}</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="controlPlayerA" onClick={() => handleAddPoint(match.id, displayLiveMatch.id, 'A', undefined, serveType, 'winner')}>
-                  <Target className="w-3.5 h-3.5 mr-2" />
-                  {displayLiveMatch.playerA.firstname} {displayLiveMatch.playerA.lastname}
-                </Button>
-                <Button variant="controlPlayerB" onClick={() => handleAddPoint(match.id, displayLiveMatch.id, 'B', undefined, serveType, 'winner')}>
-                  <Target className="w-3.5 h-3.5 mr-2" />
-                  {displayLiveMatch.playerB.firstname} {displayLiveMatch.playerB.lastname}
-                </Button>
-              </div>
-              <h4 className="text-left mb-1 mt-2">{t('liveMatch.stats.unforced_error')}</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="controlPlayerA" onClick={() => handleAddPoint(match.id, displayLiveMatch.id, 'B', undefined, serveType, 'unforced-error')}>
-                  {displayLiveMatch.playerA.firstname} {displayLiveMatch.playerA.lastname}
-                </Button>
-                <Button variant="controlPlayerB" onClick={() => handleAddPoint(match.id, displayLiveMatch.id, 'A', undefined, serveType, 'unforced-error')}>
-                  {displayLiveMatch.playerB.firstname} {displayLiveMatch.playerB.lastname}
-                </Button>
-              </div>
-              <h4 className="text-left mb-1 mt-2">{t('liveMatch.stats.error')}</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="controlPlayerA" onClick={() => handleAddPoint(match.id, displayLiveMatch.id, 'B', undefined, serveType, 'error')}>
-                  {displayLiveMatch.playerA.firstname} {displayLiveMatch.playerA.lastname}
-                </Button>
-                <Button variant="controlPlayerB" onClick={() => handleAddPoint(match.id, displayLiveMatch.id, 'A', undefined, serveType, 'error')}>
-                  {displayLiveMatch.playerB.firstname} {displayLiveMatch.playerB.lastname}
-                </Button>
-              </div>
+              {addPoint.error && (
+                <p style={{ color: "red" }}>Error: {addPoint.error.message}</p>
+              )}
             </div>
-            {addPoint.error && <p style={{ color: 'red' }}>Error: {addPoint.error.message}</p>}
-          </div>
-        </>
-      )}
+          </>
+        )}
 
       <MatchStatisticsTabs matchStats={displayLiveMatch?.matchStats} />
     </>

@@ -4,7 +4,7 @@ import { API_URL, ensureOk } from "./api.common";
 
 export interface LiveMatchApi {
     createLiveMatch: (matchid: number) => Promise<LiveMatch>;
-    updateLiveMatchStatus: (liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "suspended", tossWinner?: "A" | "B") => Promise<string>;
+    updateLiveMatchStatus: (liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "resumed" | "suspended", tossWinner?: "A" | "B") => Promise<string>;
     getLiveMatchById: (id: string) => Promise<LiveMatch>;
     addPoint: (matchId: number, liveMatchId: number, player?: 'A' | 'B', serveResult?: string, serveType?: string, winnerShot?: string) => Promise<LiveMatch>;
 }

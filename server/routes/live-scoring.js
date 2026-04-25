@@ -13,8 +13,10 @@ const buildSessionDetails = (db, matchId) => {
             s.status,
             s.current_set,
             s.current_server,
-            s.match_start_time,
-            s.match_end_time,
+            s.match_start_time AS matchStartTime,
+            s.match_end_time AS matchEndTime,
+            s.suspended_at AS suspendedAt,
+            s.resumed_at AS resumedAt,
             m.tournament,
             m.round,
             m.surface,
@@ -50,8 +52,6 @@ const buildSessionDetails = (db, matchId) => {
     session.matchId = String(session.match_id);
     session.currentSet = session.current_set;
     session.currentServer = session.current_server;
-    session.matchStartTime = session.match_start_time;
-    session.matchEndTime = session.match_end_time;
 
     // Get set scores
     const sets = db.prepare(`
@@ -111,6 +111,7 @@ router.get('/sessions', (req, res) => {
     try {
         const db = getDatabase();
         const { status } = req.query;
+        const userId = req.session?.userId;
 
         let query = `
             SELECT 
@@ -121,7 +122,11 @@ router.get('/sessions', (req, res) => {
                 s.current_server,
                 s.match_start_time,
                 s.match_end_time,
+                s.suspended_at,
+                s.resumed_at,
                 m.tournament,
+                m.creator_id,
+                m.isPublic,
                 m.round,
                 m.surface,
                 m.date,
@@ -146,11 +151,16 @@ router.get('/sessions', (req, res) => {
         if (status) {
             query += ` WHERE s.status = ?`;
         }
+        if (userId) {
+            query += status ? ` AND (m.isPublic = 1 OR (m.isPublic = 0 AND m.creator_id = ?))` : ` WHERE m.isPublic = 1 OR (m.isPublic = 0 AND m.creator_id = ?)`;
+        }
+
+        console.log('Executing live sessions query with params:', {query,  status, userId });
 
         query += ` ORDER BY s.updated_at DESC`;
 
         const stmt = db.prepare(query);
-        const sessions = status ? stmt.all(status) : stmt.all();
+        const sessions = status && userId ? stmt.all(status, userId) : status ? stmt.all(status) : userId ? stmt.all(userId) : stmt.all();
 
         sessions.forEach(s => {
             s.playerA = JSON.parse(s.playerA);
@@ -194,7 +204,7 @@ router.post('/sessions', requireAuth, (req, res) => {
         const result = db.prepare(`
             INSERT INTO live_match_sessions (match_id, status, current_set, match_start_time)
             VALUES (?, ?, ?, ?)
-        `).run(match_id, 'scheduled', 1, null);
+        `).run(match_id, 'scheduled', 1, new Date().toISOString());
 
         // Create first set
         db.prepare(`
@@ -523,11 +533,22 @@ router.post('/sessions/:sessionId/point', requireAuth, (req, res) => {
                     .run(gamesA, gamesB, currentGame.set_id);
 
                 let setWinner = null;
-                if ((gamesA >= 6 && gamesA - gamesB >= 2) || (gamesB >= 6 && gamesB - gamesA >= 2) || (gamesA === 7) || (gamesB === 7) || (matchFormat === 'FR2' && session.current_set === 3 && ((pointsUpdate.points_a >= 10 && pointsUpdate.points_a - pointsUpdate.points_b >= 2) || (pointsUpdate.points_b >= 10 && pointsUpdate.points_b - pointsUpdate.points_a >= 2)))) {
-                    setWinner = gamesA > gamesB ? 'A' : 'B';
-                } else if (gamesA === 6 && gamesB === 6 && !isTiebreak) {
-                    db.prepare('UPDATE live_sets SET is_tiebreak = 1 WHERE id = ?').run(currentGame.set_id);
+                let gamesToWinSet;
+                switch (matchFormat) {
+                    case 'BO3': gamesToWinSet = 6; break;
+                    case 'BO5': gamesToWinSet = 6; break;
+                    case 'FR2': gamesToWinSet = 6; break;
+                    case 'FR3': gamesToWinSet = 4; break;
+                    default: gamesToWinSet = 6;
                 }
+                if((matchFormat === 'BO3' || matchFormat === 'BO5' || matchFormat === 'FR2')) {
+                    if (((gamesA >= 6 && gamesA - gamesB >= 2) || (gamesB >= 6 && gamesB - gamesA >= 2) || (gamesA === 7) || (gamesB === 7) || (matchFormat === 'FR2' && session.current_set === 3 && ((pointsUpdate.points_a >= 10 && pointsUpdate.points_a - pointsUpdate.points_b >= 2) || (pointsUpdate.points_b >= 10 && pointsUpdate.points_b - pointsUpdate.points_a >= 2))))) {
+                        setWinner = gamesA > gamesB ? 'A' : 'B';
+                    } else if (gamesA === 6 && gamesB === 6 && !isTiebreak) {
+                        db.prepare('UPDATE live_sets SET is_tiebreak = 1 WHERE id = ?').run(currentGame.set_id);
+                    }
+                } 
+
 
                 if (setWinner) {
                     db.prepare('UPDATE live_sets SET set_winner = ? WHERE id = ?').run(setWinner, currentGame.set_id);
@@ -621,7 +642,7 @@ router.get('/sessions/:sessionId/points', (req, res) => {
 /**
  * PATCH /api/live-scoring/sessions/:sessionId/status
  * Update session status
- * Body: { status: 'in-progress' | 'suspended' | 'completed' }
+ * Body: { status: 'in-progress' | 'suspended' | 'completed' | 'resumed', toss_winner?: 'A' | 'B' (required if status is in-progress) }
  */
 router.patch('/sessions/:sessionId/status', requireAuth, (req, res) => {
     try {
@@ -629,15 +650,14 @@ router.patch('/sessions/:sessionId/status', requireAuth, (req, res) => {
         const { sessionId } = req.params;
         const { status, toss_winner } = req.body;
 
-        if (!status || !['scheduled', 'in-progress', 'suspended', 'completed'].includes(status)) {
+        if (!status || !['scheduled', 'in-progress', 'suspended', 'completed', 'resumed'].includes(status)) {
             return res.status(400).json({ error: 'Invalid status' });
         }
         if (status === 'in-progress' && !toss_winner) {
             return res.status(400).json({ error: 'Toss winner is required for in-progress status' });
         }
 
-        const timestamp = status === 'in-progress' ? new Date().toISOString() :
-            status === 'completed' ? new Date().toISOString() : null;
+        const timestamp = new Date().toISOString();
 
         // Create first game
         const setId = db.prepare('SELECT id FROM live_sets WHERE session_id = ? AND set_number = 1')
@@ -655,11 +675,23 @@ router.patch('/sessions/:sessionId/status', requireAuth, (req, res) => {
 
             const updateQuery = status === 'in-progress'
                 ? 'UPDATE live_match_sessions SET status = ?, match_start_time = ?, current_server = ? WHERE id = ?'
+                : status === 'resumed'
+                ? 'UPDATE live_match_sessions SET status = ?, resumed_at = ? WHERE id = ?'
+                : status === 'suspended'
+                    ? 'UPDATE live_match_sessions SET status = ?, suspended_at = ? WHERE id = ?'
                 : status === 'completed'
                     ? 'UPDATE live_match_sessions SET status = ?, match_end_time = ? WHERE id = ?'
                     : 'UPDATE live_match_sessions SET status = ? WHERE id = ?';
 
-            const params = timestamp ? status === 'in-progress' ? [status, timestamp, toss_winner, sessionId] : [status, timestamp, sessionId] : [status, sessionId];
+            const params = status === 'in-progress'
+                ? [status, timestamp, toss_winner, sessionId]
+                : status === 'resumed' 
+                ? ['in-progress', timestamp, sessionId]
+                : status === 'suspended'
+                ? [status, timestamp, sessionId]
+                : status === 'completed'
+                ? [status, timestamp, sessionId]
+                : [status, sessionId];
 
             db.prepare(updateQuery).run(...params);
         })();

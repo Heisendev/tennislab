@@ -92,7 +92,7 @@ export function useCreateLiveMatch() {
 
 export function useUpdateLiveMatchStatus() {
     return useMutation({
-        mutationFn: ({liveMatchId, status, tossWinner}: {liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "suspended", tossWinner?: "A" | "B" }) => liveMatchApi.updateLiveMatchStatus(liveMatchId, status, tossWinner),
+        mutationFn: ({liveMatchId, status, tossWinner}: {liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "resumed" | "suspended", tossWinner?: "A" | "B" }) => liveMatchApi.updateLiveMatchStatus(liveMatchId, status, tossWinner),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["liveMatch"] });
         },
