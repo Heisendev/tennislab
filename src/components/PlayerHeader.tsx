@@ -15,7 +15,7 @@ const PlayerHeader = ({ player, winner }: PlayerHeaderProps) => {
     <div className="text-center mb-4">
       <div className="flex align-middle place-items-center gap-3">
         <div
-          className={`w-14 h-14 flex justify-center items-center rounded-full border ${winner ? "border-green-500" : "border-gray-200"}`}
+          className={`w-14 h-14 flex justify-center items-center bg-white rounded-full border ${winner ? "border-green-500" : "border-gray-200"}`}
         >
           <img
             alt={player.country}
@@ -23,8 +23,8 @@ const PlayerHeader = ({ player, winner }: PlayerHeaderProps) => {
             className={"inline h-4"}
           />
         </div>
-        <h2 className="text-2xl md:text-3xl">
-          {player.firstname} {player.lastname}
+        <h2 className="text-2xl text-left">
+          {player.firstname} <br /> {player.lastname}
         </h2>
         {player.rank &&
             <div className="border border-gray-200 pt-0.5 pb-0.5 pl-3 pr-3 text-xs text-muted-foreground rounded-sm">

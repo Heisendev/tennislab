@@ -9,6 +9,7 @@ import type { LiveMatch, Match } from "src/types";
 
 import Header from "./Header";
 import { Button } from "./ui/Button";
+import { StatusBadge } from "./ui/StatusBadge";
 
 const formatDate = (date: string) =>
   new Date(date).toLocaleString("fr-FR", {
@@ -71,86 +72,85 @@ const MatchHeader = ({
           <div className="flex flex-col items-center gap-2 my-4 mx-auto justify-center">
             {liveMatch && liveMatch.status !== "created" && (
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary" />
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                  {t(`liveMatch.${liveMatch?.status.toLowerCase()}`)}{" "}
-                </span>
+                <StatusBadge status={liveMatch.status as Parameters<typeof StatusBadge>[0]['status']} />
               </div>
             )}
-            {liveMatch.status === "created" && (
-              <div className="mt-4">
-                <Button onClick={handleStartLiveMatch} variant="secondary">
-                  {t("liveMatch.scheduleMatch")}
-                </Button>
-              </div>
-            )}
-            {liveMatch.status === "scheduled" && (
-              <div className="flex flex-col">
-                  <h4>{t("liveMatch.selectTossWinner")}</h4>
-                <div role="radiogroup" className="toggle mb-2">
-                  <input type="radio" name="tossWinner" id="tossWinnerA" value="A" onChange={() => setTossWinner("A")} />
-                  <label htmlFor="tossWinnerA">{match.playerA.firstname} {match.playerA.lastname}</label>
-                  <input type="radio" name="tossWinner" id="tossWinnerB" value="B" onChange={() => setTossWinner("B")} />
-                  <label htmlFor="tossWinnerB">{match.playerB.firstname} {match.playerB.lastname}</label>
+            <div className="flex gap-2">
+              {liveMatch.status === "created" && (
+                <div className="mt-4">
+                  <Button onClick={handleStartLiveMatch} variant="secondary">
+                    {t("liveMatch.scheduleMatch")}
+                  </Button>
                 </div>
+              )}
+              {liveMatch.status === "scheduled" && (
+                <div className="flex flex-col">
+                    <h4>{t("liveMatch.selectTossWinner")}</h4>
+                  <div role="radiogroup" className="toggle mb-2">
+                    <input type="radio" name="tossWinner" id="tossWinnerA" value="A" onChange={() => setTossWinner("A")} />
+                    <label htmlFor="tossWinnerA">{match.playerA.firstname} {match.playerA.lastname}</label>
+                    <input type="radio" name="tossWinner" id="tossWinnerB" value="B" onChange={() => setTossWinner("B")} />
+                    <label htmlFor="tossWinnerB">{match.playerB.firstname} {match.playerB.lastname}</label>
+                  </div>
 
-                <Button
-                onClick={() =>
-                  updateMatchStatus.mutate({
-                    liveMatchId: liveMatch.id,
-                    status: "in-progress",
-                    tossWinner: tossWinner,
-                  })
-                }
-                disabled={!tossWinner}
-                variant="secondary"
-              >
-                {t("liveMatch.startLiveMatch")}
-              </Button>
-              </div>
-            )}
-            {liveMatch.status === "in-progress" && (
-              <>
-                <Button
+                  <Button
                   onClick={() =>
                     updateMatchStatus.mutate({
                       liveMatchId: liveMatch.id,
-                      status: "suspended",
+                      status: "in-progress",
+                      tossWinner: tossWinner,
                     })
                   }
+                  disabled={!tossWinner}
                   variant="secondary"
                 >
-                  {t("liveMatch.pause")}
+                  {t("liveMatch.startLiveMatch")}
                 </Button>
-                <Button
-                  onClick={() =>
-                    updateMatchStatus.mutate({
-                      liveMatchId: liveMatch.id,
-                      status: "completed",
-                    })
-                  }
-                  variant="secondary"
-                >
-                  {t("liveMatch.complete")}
-                </Button>
-              </>
-            )}
-            {liveMatch.status === "suspended" && (
-              <>
-                <Button
-                  onClick={() =>
-                    updateMatchStatus.mutate({
-                      liveMatchId: liveMatch.id,
-                      status: "resumed",
-                      tossWinner: liveMatch.tossWinner,
-                    })
-                  }
-                  variant="secondary"
-                >
-                  {t("liveMatch.resume")}
-                </Button>
-              </>
-            )}
+                </div>
+              )}
+              {liveMatch.status === "in-progress" && (
+                <>
+                  <Button
+                    onClick={() =>
+                      updateMatchStatus.mutate({
+                        liveMatchId: liveMatch.id,
+                        status: "suspended",
+                      })
+                    }
+                    variant="primary"
+                  >
+                    {t("liveMatch.pause")}
+                  </Button>
+                  <Button
+                    onClick={() =>
+                      updateMatchStatus.mutate({
+                        liveMatchId: liveMatch.id,
+                        status: "completed",
+                      })
+                    }
+                    variant="primary"
+                  >
+                    {t("liveMatch.complete")}
+                  </Button>
+                </>
+              )}
+              {liveMatch.status === "suspended" && (
+                <>
+                  <Button
+                    onClick={() =>
+                      updateMatchStatus.mutate({
+                        liveMatchId: liveMatch.id,
+                        status: "resumed",
+                        tossWinner: liveMatch.tossWinner,
+                      })
+                    }
+                    variant="secondary"
+                  >
+                    {t("liveMatch.resume")}
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         )}
         <h1 className="text-4xl md:text-6xl font-display text-foreground my-3">
