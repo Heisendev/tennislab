@@ -425,14 +425,19 @@ router.post('/sessions/:sessionId/point', requireAuth, (req, res) => {
                     }
                 }
 
-                db.prepare(`
+                const insertStats = (obj) => db.prepare(`
                     INSERT INTO live_match_stats (session_id, set_number, player, total_points_won, aces, double_faults, first_serve_count, first_serve_won, second_serve_won, winners, break_points_won, break_points_faced, serves_total)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `).run(serverStatsInsert.session_id, serverStatsInsert.set_number, serverStatsInsert.player, serverStatsInsert.total_points_won, serverStatsInsert.aces, serverStatsInsert.double_faults, serverStatsInsert.first_serve_count, serverStatsInsert.first_serve_won, serverStatsInsert.second_serve_won, serverStatsInsert.winners, serverStatsInsert.break_points_won, serverStatsInsert.break_points_faced, serverStatsInsert.serves_total);
-                db.prepare(`
-                    INSERT INTO live_match_stats (session_id, set_number, player, total_points_won, aces, double_faults, first_serve_count, first_serve_won, second_serve_won, winners, break_points_won, break_points_faced, serves_total)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `).run(receiverStatsInsert.session_id, receiverStatsInsert.set_number, receiverStatsInsert.player, receiverStatsInsert.total_points_won, receiverStatsInsert.aces, receiverStatsInsert.double_faults, receiverStatsInsert.first_serve_count, receiverStatsInsert.first_serve_won, receiverStatsInsert.second_serve_won, receiverStatsInsert.winners, receiverStatsInsert.break_points_won, receiverStatsInsert.break_points_faced, receiverStatsInsert.serves_total);
+                `).run(obj.session_id, obj.set_number, obj.player, obj.total_points_won, obj.aces, obj.double_faults, obj.first_serve_count, obj.first_serve_won, obj.second_serve_won, obj.winners, obj.break_points_won, obj.break_points_faced, obj.serves_total);
+
+                // pointWinner has no record (!statsRecord); other player may already have one (e.g. from double-fault block)
+                const pwInsert = pointWinner === server ? serverStatsInsert : receiverStatsInsert;
+                const otherInsert = pointWinner === server ? receiverStatsInsert : serverStatsInsert;
+                insertStats(pwInsert);
+                const otherAlreadyExists = db.prepare('SELECT id FROM live_match_stats WHERE session_id = ? AND set_number = ? AND player = ?').get(sessionId, session.current_set, otherInsert.player);
+                if (!otherAlreadyExists) {
+                    insertStats(otherInsert);
+                }
             }
             else {
                 let updateQuery = 'UPDATE live_match_stats SET total_points_won = total_points_won + 1';
