@@ -2,6 +2,8 @@ import { Navigate, Outlet } from "react-router";
 
 import { useAuth } from "@providers/useAuth";
 
+import { AppLayout } from "./AppLayout";
+
 const ProtectedRoute = () => {
   const { user, isLoading } = useAuth();
 
@@ -17,7 +19,11 @@ const ProtectedRoute = () => {
     return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <AppLayout>
+      <Outlet />
+    </AppLayout>
+  );
 };
 
 export default ProtectedRoute;
