@@ -23,7 +23,8 @@
     "matchesDesc": "Consultez l'archive complète des matches enregistrés"
   },
   "navigation": {
-    "home": "Accueil",
+    "home": "Tableau de Bord",
+    "liveTracker": "Suivi en Direct",
     "players": "Joueurs",
     "matches": "Matches",
     "newMatch": "Nouveau Match"
