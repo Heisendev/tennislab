@@ -30,6 +30,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/newmatch" element={<CreateMatch />} />
           <Route path="/matches/" element={<Matches />} />
+          <Route path="/matches/live" element={<Matches />} />
           <Route path="/matches/:id" element={<Match />} />
           <Route path="/players" element={<Players />} />
           <Route path="/players/:id" element={<Player />} />
