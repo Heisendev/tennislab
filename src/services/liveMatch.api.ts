@@ -6,6 +6,7 @@ export interface LiveMatchApi {
     createLiveMatch: (matchid: number) => Promise<LiveMatch>;
     updateLiveMatchStatus: (liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "resumed" | "suspended", tossWinner?: "A" | "B") => Promise<string>;
     getLiveMatchById: (id: string) => Promise<LiveMatch>;
+    getLiveMatches: () => Promise<LiveMatch[]>;
     addPoint: (matchId: number, liveMatchId: number, player?: 'A' | 'B', serveResult?: string, serveType?: string, winnerShot?: string) => Promise<LiveMatch>;
 }
 
@@ -23,7 +24,7 @@ export const liveMatchApi: LiveMatchApi = {
         const data = await response.json();
         return data;
     },
-    updateLiveMatchStatus: async (liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "suspended", tossWinner?: "A" | "B") => {
+    updateLiveMatchStatus: async (liveMatchId: number, status: "scheduled" | "in-progress" | "completed" | "resumed" | "suspended", tossWinner?: "A" | "B") => {
         const response = await fetch(`${API_URL}/live-scoring/sessions/${liveMatchId}/status`, {
             method: "PATCH",
             headers: {
@@ -35,6 +36,14 @@ export const liveMatchApi: LiveMatchApi = {
         await ensureOk(response, `Failed to update live match status: ${response.statusText}`);
         const data = await response.json();
         return data.message;
+    },
+    getLiveMatches: async () => {
+        const response = await fetch(`${API_URL}/live-scoring/sessions`, {
+            credentials: "include",
+        });
+        await ensureOk(response, `Failed to get live matches: ${response.statusText}`);
+        const data = await response.json();
+        return data;
     },
     getLiveMatchById: async (id: string) => {
         const response = await fetch(`${API_URL}/live-scoring/sessions/${id}`, {
