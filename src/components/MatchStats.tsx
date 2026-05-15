@@ -33,7 +33,7 @@ export const MatchStats = ({
     <div className="py-3 px-4">
       <div className="flex items-center justify-between mb-2">
         <span
-          className={`text-lg font-semibold tabular-nums ${aWins ? "text-primary" : "text-muted-foreground"}`}
+          className={`text-lg font-semibold tabular-nums ${aWins ? "text-(--bg-dataviz-coral)" : "text-muted-foreground"}`}
         >
           {playerA}
           {unitDisplay}
@@ -51,7 +51,7 @@ export const MatchStats = ({
       <div className="flex gap-1 h-2">
         <div className="flex-1 flex justify-end">
           <motion.div
-            className={`h-full rounded-l-full ${aWins ? "stat-gradient" : "bg-muted"}`}
+            className={`h-full rounded-l-full ${aWins ? "stat-gradient" : "stat-gradient--muted"}`}
             initial={{ width: 0 }}
             animate={{ width: `${widthA}%` }}
             transition={{ duration: 0.5, ease: "easeOut", delay: 0.2 }}
@@ -59,7 +59,7 @@ export const MatchStats = ({
         </div>
         <div className="flex-1">
           <motion.div
-            className={`h-full rounded-r-full ${bWins ? "stat-gradient-secondary" : "bg-muted"}`}
+            className={`h-full rounded-r-full ${bWins ? "stat-gradient-secondary" : "stat-gradient--muted-secondary"}`}
             initial={{ width: 0 }}
             animate={{ width: `${widthB}%` }}
             transition={{ duration: 0.5, ease: "easeOut", delay: 0.2 }}

@@ -64,7 +64,7 @@ const MatchStatisticsTabs = ({ matchStats }: { matchStats?: MatchStatsType }) =>
   return (
     <>
       <h2 className="text-xl font-bold mb-4">{t("liveMatch.matchStatistics")}</h2>
-      <div className="mx-2 max-w-4xl md:mx-auto bg-white border border-gray-300 mb-8 pb-4 pt-8">
+      <div className="rounded-md shadow-(--shadow-md) mx-2 lg:w-(--layout-content) md:mx-auto bg-white border border-gray-300 mb-8 pt-8">
         <Tabs defaultIndex={0}>
           <TabList>
             {Object.entries(matchStats).map(([key], index) => (

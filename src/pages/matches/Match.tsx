@@ -33,6 +33,7 @@ const createDefaultLiveMatch = (match: MatchType): LiveMatch => ({
   currentServer: match.tossWinner === "A" ? "A" : undefined,
   sets: [],
   matchStats: {},
+  matchStartTime: new Date().toISOString(),
 });
 
 const Match = () => {
@@ -78,7 +79,7 @@ const Match = () => {
   return (
     <>
       <MatchHeader match={match} liveMatch={displayLiveMatch} />
-      <div className="mx-auto flex max-w-4xl flex-row justify-between">
+      <div className="mx-auto flex lg:w-(--layout-content) flex-row justify-between">
         <PlayerHeader player={match.playerA} winner={match.winner === "A"} />
         <PlayerHeader player={match.playerB} winner={match.winner === "B"} />
       </div>
@@ -101,7 +102,7 @@ const Match = () => {
             <h2 className="mb-4 text-xl font-bold">
               {t("liveMatch.controls")}
             </h2>
-            <div className="mx-2 mb-8 max-w-4xl border border-gray-300 bg-white py-4 md:mx-auto">
+            <div className="rounded-md shadow-(--shadow-md) mx-2 mb-8 lg:w-(--layout-content) border border-gray-300 bg-white py-4 md:mx-auto">
               {displayLiveMatch.currentGame?.server &&
               displayLiveMatch.currentGame?.server === "A" ? (
                 <h3>
@@ -120,7 +121,7 @@ const Match = () => {
                 <h4 className="mt-2 mb-1 text-left">{t("liveMatch.serve")}</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <Button
-                    variant="secondary"
+                    variant="tertiary"
                     disabled={serveType === "second"}
                     onClick={() =>
                       handleAddPoint(
@@ -135,7 +136,7 @@ const Match = () => {
                     {t("liveMatch.stats.first_serve_fault")}
                   </Button>
                   <Button
-                    variant="secondary"
+                    variant="tertiary"
                     disabled={serveType === "first"}
                     onClick={() =>
                       handleAddPoint(
@@ -152,7 +153,7 @@ const Match = () => {
                   </Button>
                   <div className="col-span-2">
                     <Button
-                      variant="secondary"
+                      variant="tertiary"
                       style={{ width: "100%" }}
                       onClick={() =>
                         handleAddPoint(
@@ -164,7 +165,7 @@ const Match = () => {
                         )
                       }
                     >
-                      <Zap className="text-primary mr-2 h-3.5 w-3.5" />
+                      <Zap className="mr-2 h-3.5 w-3.5" />
                       {t("liveMatch.stats.ace")}
                     </Button>
                   </div>
